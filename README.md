@@ -18,14 +18,15 @@ The API will be RESTful and their CRUD operations are defined below:
 ## DataLog
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| GET    | /log                | Retrieve all datalog from the house given an $USER_ID and $SESSION_ID of an owner |
+| GET    | /log                | Retrieve all datalog from the house given an $USER_ID and $SESSION_ID of an owner (given a range of dates) |
 
 ## Member
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /members            | Retrieve a list of all the members (with all information) the owner has |
 | POST   | /member             | Send a request to add him/her as a member of the house, an one-time password will be returned with a limited time of 5min for the member to add it to his mobile device |
-| PUT    | /member             | Modify member information and owner permissions |
+| PUT    | /member             | Modify member information and owner permissions (create temporary user for retrieving face and fingerprint) |
+| DELETE | /member             | Modify member information and owner permissions |
 
 ## Open Door-Lock
 | Method | Url | Action |
