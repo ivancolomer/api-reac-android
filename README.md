@@ -3,17 +3,37 @@
 This API will be used as a middleware between the Android Application and the Database/Logic of the server.
 The API will be RESTful and their CRUD operations are defined below:
 
+## Login
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| POST   | /login              | Checks if the given password is good, and if so, returns a SESSION_ID used for the following queries |
-| POST   | /register           | Registers a new user into the database |
-| GET    | /user               | Retrieve all the information about the user given an id and SESSION_ID (logged-in) |
+| GET    | /login              | Checks if the given $PASSWORD and $USER_ID is good, and if so, returns a $SESSION_ID used for the following queries |
+
+## User
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| POST   | /user               | Registers a new user into the database by given an $SERIAL_ID |
+| GET    | /user               | Retrieve all the information about the user given an $USER_ID and $SESSION_ID (logged-in) |
 | PUT    | /user               | Updates information about the logged-in user (name, profile photo, ...) |
-| POST   | /user/fingerprint   | Saves the fingerprint photo sent by the user with id 1 used for the fingerprint recognition algorithm |
-| POST   | /user/face          | Saves the face photo sent by the user with id 1 used for the face recognition algorithm |
-| POST   | /friend             | Send a request to add him/her to my list of friends by mail address or mobile number (it can be family too, there will be different categories)
-| PUT    | /friend             | Accepts or decline friendship request |
-| GET    | /friends            | Retrieve a list of all the friends the logged-in user has |
-| GET    | /friend/1           | Retrieve information about the friend with id 1 |
-| DELETE | /friend/1           | Deletes the friend with id 1 from friends' list |
-| POST   | /friend/1/enter     | Let the friend enter your home for some time defined by the user |
+
+## DataLog
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /log                | Retrieve all datalog from the house given an $USER_ID and $SESSION_ID of an owner |
+
+## Member
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /members            | Retrieve a list of all the members (with all information) the owner has |
+| POST   | /member             | Send a request to add him/her as a member of the house, an one-time password will be returned with a limited time of 5min for the member to add it to his mobile device |
+| PUT    | /member             | Modify member information and owner permissions |
+
+## Open Door-Lock
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /door               | Ask the server to open the door |
+
+## Camera streaming
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /camera             | Ask the server to give an url (that will be playable by VLC integrated API in Android) back from the video streaming camera |
+
