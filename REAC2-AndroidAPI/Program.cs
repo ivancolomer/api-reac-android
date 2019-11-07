@@ -16,6 +16,7 @@ namespace REAC_AndroidApi
         public static DateTime InitStartUTC { get; set; }
 
         private static SocketListener ServerListener;
+        private static NancyHost NancyHost;
         private static bool HasExited = false;
 
         static void Main(string[] args)
@@ -35,20 +36,20 @@ namespace REAC_AndroidApi
             SocketOption option = new SocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.ReuseAddress, 1);
             ServerListener = new SocketListener(new IPEndPoint(IPAddress.Any, 8081), 100, new OnNewConnectionCallback(Utils.Network.Sessions.SessionManager.HandleIncomingConnection), option);
 
-            using (var nancyHost = new NancyHost(new Uri("http://localhost:8888/nancy/"), new Uri("http://127.0.0.1:8898/nancy/"), new Uri("http://localhost:8889/nancytoo/")))
+            NancyHost = new NancyHost(new HostConfiguration { RewriteLocalhost = true }, new Uri("http://localhost:80/api/"));
+            
+            try
             {
-                try
-                {
-                    nancyHost.Start();
-                } catch (Exception e)
-                {
-                    Logger.WriteLineWithHeader(e.ToString(), "Couldn't start nancyHost", Logger.LOG_LEVEL.ERROR);
-                    Console.ReadKey();
-                    return;
-                }
-
-                Logger.WriteLine("Nancy now listening - navigating to http://localhost:8888/nancy/. Press enter to stop", Logger.LOG_LEVEL.INFO);
+                NancyHost.Start();
+            } catch (Exception e)
+            {
+                Logger.WriteLineWithHeader(e.ToString(), "Couldn't start nancyHost", Logger.LOG_LEVEL.ERROR);
+                Console.ReadKey();
+                return;
             }
+
+            Logger.WriteLine("Nancy now listening - navigating to http://localhost/api/. Press enter to stop", Logger.LOG_LEVEL.INFO);
+            
 
             string line;
             while (true)
@@ -77,6 +78,7 @@ namespace REAC_AndroidApi
             }
             else { return; }
 
+            NancyHost.Dispose();
             CloseSocket();
             Logger.WriteLine("Stopped. Good bye!", Logger.LOG_LEVEL.DEBUG);
             Environment.Exit(0);
