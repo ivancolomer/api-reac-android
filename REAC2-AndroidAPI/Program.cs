@@ -46,7 +46,7 @@ namespace REAC_AndroidApi
             SocketOption option = new SocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.ReuseAddress, 1);
             ServerListener = new SocketListener(new IPEndPoint(IPAddress.Any, 8081), 100, new OnNewConnectionCallback(Utils.Network.Sessions.SessionManager.HandleIncomingConnection), option);
 
-            NancyHost = new NancyHost(new HostConfiguration { RewriteLocalhost = true }, new Uri("http://localhost:8080/api/"));
+            NancyHost = new NancyHost(new HostConfiguration { RewriteLocalhost = true }, new Uri("http://localhost:8080/"));
             
             try
             {
