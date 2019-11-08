@@ -1,8 +1,13 @@
 ﻿
 
 using Nancy;
+using Nancy.Extensions;
+using REAC2_AndroidAPI.Exceptions;
+using REAC2_AndroidAPI.Handlers;
 using REAC2_AndroidAPI.Models;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace REAC2_AndroidAPI
 {
@@ -10,37 +15,41 @@ namespace REAC2_AndroidAPI
     {
         public TestModule()
         {
-            Get("/", args => {
-                return View["staticview", this.Request.Url];
-            });
+            //Get("/", args => "Hello from Nancy running on CoreCLR");
 
-            Get("/testing", args =>
+            Get("/testing", async (x, ct) =>
             {
                 return View["staticview", this.Request.Url];
             });
 
-            Get("/fileupload", args =>
+            Get("/", async (x, ct) =>
             {
-                var model = new Index() { Name = "Boss Hawg" };
-
-                return View["FileUpload", model];
+                throw new NotFoundErrorException("OOPS");
+                //await Task.Delay(1000);
+                //await Task.Delay(1000);
+                return Response.AsJson("Hello from Nancy running on CoreCLR");
             });
 
-            Post("/fileupload", args =>
+
+            Get("/login", async (x, ct) =>
             {
-                var model = new Index() { Name = "Boss Hawg" };
+                string from = this.Request.Query["from"];
+                string to = this.Request.Query["to"];
 
-                var file = this.Request.Files.FirstOrDefault();
-                string fileDetails = "None";
+                //this.OnError.AddItemToEndOfPipeline((ctx, exception) => { });
+                //throw
 
-                if (file != null)
-                {
-                    fileDetails = string.Format("{3} - {0} ({1}) {2}bytes", file.Name, file.ContentType, file.Value.Length, file.Key);
-                }
 
-                model.Posted = fileDetails;
+                return Response.AsJson(new List<Index>() {
+                    new Index(from),
+                });
+            });
 
-                return View["FileUpload", model];
+            Post("/user", async (x, ct) =>
+            {
+                await Task.Delay(1000);
+                var jsonString = this.Request.Body.AsString();
+                return Response.AsJson(jsonString);
             });
         }
     }

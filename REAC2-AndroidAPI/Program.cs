@@ -8,9 +8,19 @@ using REAC_AndroidApi.Utils.Storage;
 using REAC_AndroidApi.Utils.Network;
 using Nancy.Hosting.Self;
 using REAC2_AndroidAPI.Utils.Output;
+//using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using REAC2_AndroidAPI;
 
 namespace REAC_AndroidApi
 {
+    //sudo apt-get update
+    //sudo apt-get install curl libunwind8 gettext apt-transport-https
+    //sudo chmod 755 ./REAC-AndroidAPI
+
+    //dotnet publish --self-contained --runtime linux-arm
+
+
     public class Program
     {
         public static DateTime InitStartUTC { get; set; }
@@ -36,7 +46,7 @@ namespace REAC_AndroidApi
             SocketOption option = new SocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.ReuseAddress, 1);
             ServerListener = new SocketListener(new IPEndPoint(IPAddress.Any, 8081), 100, new OnNewConnectionCallback(Utils.Network.Sessions.SessionManager.HandleIncomingConnection), option);
 
-            NancyHost = new NancyHost(new HostConfiguration { RewriteLocalhost = true }, new Uri("http://localhost:80/api/"));
+            NancyHost = new NancyHost(new HostConfiguration { RewriteLocalhost = true }, new Uri("http://localhost:8080/api/"));
             
             try
             {
@@ -48,8 +58,16 @@ namespace REAC_AndroidApi
                 return;
             }
 
-            Logger.WriteLine("Nancy now listening - navigating to http://localhost/api/. Press enter to stop", Logger.LOG_LEVEL.INFO);
+            Logger.WriteLine("Nancy now listening - navigating to http://localhost:8080/api/. Press enter to stop", Logger.LOG_LEVEL.INFO);
             
+
+            /*var host = new WebHostBuilder()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseKestrel()
+                .UseStartup<Startup>()
+                .Build();
+
+            host.Run();*/
 
             string line;
             while (true)

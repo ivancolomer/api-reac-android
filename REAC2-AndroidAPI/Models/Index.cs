@@ -10,8 +10,9 @@ namespace REAC2_AndroidAPI.Models
 
         public string Posted { get; set; }
 
-        public Index()
+        public Index(string name)
         {
+            this.Name = name;
             this.Posted = "Nothing :-(";
         }
     }
