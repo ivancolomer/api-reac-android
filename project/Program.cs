@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Net;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
+using Nancy.Hosting.Self;
+
+using REAC_AndroidAPI.Utils.Output;
 using REAC_AndroidAPI.Utils.Storage;
 using REAC_AndroidAPI.Utils.Network;
-using Nancy.Hosting.Self;
-using REAC_AndroidAPI.Utils.Output;
-//using Microsoft.AspNetCore.Hosting;
-using System.IO;
-using REAC_AndroidAPI;
 
 namespace REAC_AndroidAPI
 {
@@ -59,15 +54,6 @@ namespace REAC_AndroidAPI
             }
 
             Logger.WriteLine("Nancy now listening - navigating to http://localhost:8080/api/. Press enter to stop", Logger.LOG_LEVEL.INFO);
-            
-
-            /*var host = new WebHostBuilder()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseKestrel()
-                .UseStartup<Startup>()
-                .Build();
-
-            host.Run();*/
 
             string line;
             while (true)

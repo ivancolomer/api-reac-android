@@ -16,7 +16,7 @@ namespace REAC_AndroidAPI
             : base("api")
         {
 
-            #pragma warning disable CS1998 // El método asincrónico carece de operadores "await" y se ejecutará de forma sincrónica
+#pragma warning disable CS1998
 
             Get("/", async (x, ct) =>
             {
@@ -90,7 +90,7 @@ namespace REAC_AndroidAPI
                 });*/
             });
 
-#pragma warning restore CS1998 // El método asincrónico carece de operadores "await" y se ejecutará de forma sincrónica
+#pragma warning restore CS1998
         }
 
         private bool CheckLogIn(string userId, string sessionId)
