@@ -3,7 +3,9 @@
 This API will be used as a middleware between the Android Application and the Database/Logic of the server.
 The API will be RESTful and their CRUD operations are defined below:
 
-## Login
+## Documentation
+
+### Login
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /login              | Checks if the given $PASSWORD and $USER_ID is good, and if so, returns a $SESSION_ID used for the following queries |
@@ -15,12 +17,12 @@ The API will be RESTful and their CRUD operations are defined below:
 | GET    | /user               | Retrieve all the information about the user given an $USER_ID and $SESSION_ID (logged-in) |
 | PUT    | /user               | Updates information about the logged-in user (name, profile photo, ...) |
 
-## DataLog
+### DataLog
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /log                | Retrieve all datalog from the house given an $USER_ID and $SESSION_ID of an owner (given a range of dates) |
 
-## Member
+### Member
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /members            | Retrieve a list of all the members (with all information) the owner has |
@@ -28,13 +30,33 @@ The API will be RESTful and their CRUD operations are defined below:
 | PUT    | /member             | Modify member information and owner permissions (create temporary user for retrieving face and fingerprint) |
 | DELETE | /member             | Modify member information and owner permissions |
 
-## Open Door-Lock
+### Open Door-Lock
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /door               | Ask the server to open the door |
 
-## Camera streaming
+### Camera streaming
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /camera             | Ask the server to give an url (that will be playable by VLC integrated API in Android) back from the video streaming camera |
+
+## Installation
+
+There are some things you will need to install in order to run this. First of all you will need the required packages to get dotnet working on your RaspberryPI (Debian).
+
+```bash
+sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y
+sudo apt-get install curl libunwind8 gettext apt-transport-https -y
+```
+
+In order to install the MySql Server:
+
+```bash
+sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y
+sudo apt-get install mariadb-server -y
+
+#in progress
+
+```
+
 
