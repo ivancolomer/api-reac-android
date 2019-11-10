@@ -11,18 +11,20 @@ namespace REAC_AndroidAPI.Utils.Loop
     {
         private readonly int SleepTime;
         private OnTickCallback Callback;
+        private bool Running;
 
         public InfiniteLoop(int SleepTime, OnTickCallback Callback)
         {
             this.SleepTime = SleepTime;
             this.Callback = Callback;
+            this.Running = true;
 
             StartLoop();
         }
 
         protected async void StartLoop()
         {
-            while (true)
+            while (Running)
             {
                 BeforeAction();
 
@@ -32,6 +34,7 @@ namespace REAC_AndroidAPI.Utils.Loop
 
                 await Task.Delay(TimeToWait());
             }
+            Dispose();
         }
 
         protected virtual void BeforeAction()
@@ -41,6 +44,11 @@ namespace REAC_AndroidAPI.Utils.Loop
         protected virtual int TimeToWait()
         {
             return SleepTime;
+        }
+
+        public void Stop()
+        {
+            this.Running = false;
         }
 
         public void Dispose()

@@ -6,6 +6,7 @@ using Nancy.Hosting.Self;
 using REAC_AndroidAPI.Utils.Output;
 using REAC_AndroidAPI.Utils.Storage;
 using REAC_AndroidAPI.Utils.Network;
+using REAC2_AndroidAPI.Utils.Network.Udp;
 
 namespace REAC_AndroidAPI
 {
@@ -21,6 +22,7 @@ namespace REAC_AndroidAPI
         public static DateTime InitStartUTC { get; set; }
 
         private static SocketListener ServerListener;
+        private static BroadcastEmitter BroadcastEmitter;
         private static NancyHost NancyHost;
         private static bool HasExited = false;
 
@@ -39,10 +41,14 @@ namespace REAC_AndroidAPI
             Utils.Network.Sessions.SessionManager.Initialize();
 
             SocketOption option = new SocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.ReuseAddress, 1);
-            ServerListener = new SocketListener(new IPEndPoint(IPAddress.Any, 8081), 100, new OnNewConnectionCallback(Utils.Network.Sessions.SessionManager.HandleIncomingConnection), option);
-
-            NancyHost = new NancyHost(new HostConfiguration { RewriteLocalhost = true }, new Uri("http://localhost:8080/"));
+            ServerListener = new SocketListener(new IPEndPoint(IPAddress.Any, DotNetEnv.Env.GetInt("TCP_LISTENER_PORT")), 100, new OnNewConnectionCallback(Utils.Network.Sessions.SessionManager.HandleIncomingConnection), option);
             
+            //FOR TESTING ONLY
+            BroadcastReceiver broadcastReceiver = new BroadcastReceiver();
+            
+            
+            BroadcastEmitter = new BroadcastEmitter();
+            NancyHost = new NancyHost(new HostConfiguration { RewriteLocalhost = true }, new Uri("http://localhost:" + DotNetEnv.Env.GetInt("WEB_SERVER_PORT") + "/")); 
             try
             {
                 NancyHost.Start();
@@ -53,7 +59,7 @@ namespace REAC_AndroidAPI
                 return;
             }
 
-            Logger.WriteLine("Nancy now listening - navigating to http://localhost:8080/api/. Press enter to stop", Logger.LOG_LEVEL.INFO);
+            Logger.WriteLine("Nancy now listening - navigating to http://localhost:" + DotNetEnv.Env.GetInt("WEB_SERVER_PORT") + "/api/. Type 'close' to stop", Logger.LOG_LEVEL.INFO);
 
             string line;
             while (true)
