@@ -42,21 +42,10 @@ The API will be RESTful and their CRUD operations are defined below:
 
 ## Installation
 
-There are some things you will need to install in order to run this. First of all you will need the required packages to get dotnet working on your RaspberryPI (Debian).
-
 ```bash
-sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y
-sudo apt-get install curl libunwind8 gettext apt-transport-https -y
-```
+sudo apt update && sudo apt install curl
 
-In order to install the MySql Server:
-
-```bash
-sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y
-sudo apt-get install mariadb-server -y
-
-#in progress
-
+bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/master/install.sh)
 ```
 
 
