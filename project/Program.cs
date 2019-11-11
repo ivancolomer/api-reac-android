@@ -29,14 +29,20 @@ namespace REAC_AndroidAPI
         static void Main(string[] args)
         {
             InitStartUTC = DateTime.UtcNow;
-            DotNetEnv.Env.Load();
+
+            DotNetEnv.Env.Load(AppDomain.CurrentDomain.BaseDirectory + System.IO.Path.DirectorySeparatorChar + ".." + System.IO.Path.DirectorySeparatorChar + ".env");
             Logger.Initialize();
 
             Console.CancelKeyPress += delegate
             {
                 ExitProgram();
             };
-           
+
+            AppDomain.CurrentDomain.ProcessExit += delegate
+            {
+                ExitProgram();
+            };
+
             SqlDatabaseManager.Initialize();
             Utils.Network.Sessions.SessionManager.Initialize();
 
@@ -82,13 +88,18 @@ namespace REAC_AndroidAPI
 
         private static void ExitProgram()
         {
-            if (!HasExited)
-            {
-                HasExited = true;
-            }
-            else { return; }
+            if (HasExited)
+                return;
 
-            NancyHost.Dispose();
+            HasExited = true;
+
+            try
+            {
+                NancyHost.Dispose();
+            } catch(Exception e)
+            {
+
+            }
             CloseSocket();
             Logger.WriteLine("Stopped. Good bye!", Logger.LOG_LEVEL.DEBUG);
             Environment.Exit(0);

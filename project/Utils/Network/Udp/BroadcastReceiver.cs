@@ -40,7 +40,7 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
                 string ipReceiver = from.ToString().Split(':')[0];
                 string receiveString = Encoding.UTF8.GetString(receiveBytes);
 
-                Logger.WriteLineWithHeader($"Received from {ipReceiver}: {receiveString}", "BROADCAST", Logger.LOG_LEVEL.DEBUG);
+                //Logger.WriteLineWithHeader($"Received from {ipReceiver}: {receiveString}", "BROADCAST", Logger.LOG_LEVEL.DEBUG);
 
                 if (!stopListeningToBroadcast)
                 {
@@ -59,11 +59,33 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
                     }
                 }
             }
+            catch (SocketException)
+            {
+            }
+            catch (ObjectDisposedException)
+            {
+            }
             catch (Exception e)
             {
                 Logger.WriteLine("Exception while ReceivedCallback from BroadcastReceiver: " + e.ToString(), Logger.LOG_LEVEL.ERROR);
             }
-            
+        }
+
+        public void Stop()
+        {
+            if(udpClient != null)
+            {
+                try
+                {
+                    udpClient.Close();
+                    udpClient.Dispose();
+                    udpClient = null;
+                }
+                catch (Exception e)
+                {
+
+                }
+            }
         }
     }
 }

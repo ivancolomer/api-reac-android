@@ -12,7 +12,7 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
 {
     public class BroadcastEmitter
     {
-        private const int LOOP_MILLS = 2 * 1000; // 2 seconds time
+        private const int LOOP_MILLS = 3 * 1000; // 3 seconds time
 
         private InfiniteLoop broadcastLoop;
 
@@ -67,6 +67,12 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
                     udpClient.Send(bytes, bytes.Length, udpAddress);
                     //Logger.WriteLine("Broadcast message sent to " + udpAddress.ToString(), Logger.LOG_LEVEL.DEBUG);
                 }
+            }
+            catch (SocketException)
+            {
+            }
+            catch (ObjectDisposedException)
+            {
             }
             catch (Exception e)
             {

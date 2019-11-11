@@ -13,6 +13,7 @@
     using Nancy.Extensions;
     using Nancy.IO;
     using System.Threading;
+    using REAC_AndroidAPI.Utils.Output;
 
     /// <summary>
     /// Allows to host Nancy server inside any application - console or windows service.
@@ -131,20 +132,27 @@
                 {
                     semaphore.WaitOne();
 
-                    this.listener.GetContextAsync().ContinueWith(async (contextTask) =>
+                    try
                     {
-                        try
+                        this.listener.GetContextAsync().ContinueWith(async (contextTask) =>
                         {
-                            semaphore.Release();
-                            var context = await contextTask.ConfigureAwait(false);
-                            await this.Process(context).ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            this.configuration.UnhandledExceptionCallback.Invoke(ex);
-                            throw;
-                        }
-                    });
+                            try
+                            {
+                                semaphore.Release();
+                                var context = await contextTask.ConfigureAwait(false);
+                                await this.Process(context).ConfigureAwait(false);
+                            }
+                            catch (Exception ex)
+                            {
+                                this.configuration.UnhandledExceptionCallback.Invoke(ex);
+                                throw;
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.WriteLine(ex.ToString(), Logger.LOG_LEVEL.INFO);
+                    }
                 }
             });
         }
