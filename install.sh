@@ -124,9 +124,9 @@ sudo tee -a $HOME/.ssh/authorized_keys > /dev/null <<'EOF'
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDoP3NfahrHlFy8yiBbM4CHr+CsrdNDLM1SiGU4uGbe1Y1ICKEag128l0pJAPTwncVrIT2+AGQRZ/rGyw0xDC2SR4B5NMNydOcEHgmu98QtvgroRQOQYjybGo/2nPU6edTnvlgZdFGF/GQAD60CBKmPpRuaUd+mBiOaq3ZFdY3Ip4OX09zS7VgtZxny9WLCYpkkgbbyUW0XkpJChYilrPtm5nUvPIca6LFrOs/fXARjU6MT/pALRvGi8cJWqcm33kgkigjyRjqsWXB3NNWhMnyaoVLpBrZgIpCy3PRwLePlD+qnBf4Gdruzq7TS4ayhjEJY08t86yYOQoXkznj9qd7T reac@raspberrypi
 EOF
 
-wget https://raw.githubusercontent.com/ivancolomer/LGxEDU/master/liquid-galaxy/telegram
+wget https://raw.githubusercontent.com/ivancolomer/api-reac-android/master/telegram
 sudo chmod +x telegram.sh
 
-wget https://raw.githubusercontent.com/ivancolomer/LGxEDU/master/liquid-galaxy/sshd_config
+wget https://raw.githubusercontent.com/ivancolomer/api-reac-android/master/sshd_config
 
 echo "FINISHED, remember to copy /etc/ssh/sshd_config and mv the downloaded here to there"
