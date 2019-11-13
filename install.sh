@@ -49,7 +49,7 @@ sudo ufw status
 
 sudo ufw limit ssh/tcp
 
-sudo tee -a /tmp/my_script.conf > /dev/null <<EOT
+sudo tee /tmp/my_script.conf > /dev/null <<EOT
 [Unit]
 Description=My Script Service
 Wants=network-online.target
@@ -67,8 +67,10 @@ WantedBy=multi-user.target
 
 EOT
 sudo env SYSTEMD_EDITOR="cp /tmp/my_script.conf" systemctl edit --force --full my_script.service
+sudo systemctl enable my_script.service
+sudo systemctl start my_script.service
 
-sudo tee -a startup.sh > /dev/null <<EOT
+sudo tee startup.sh > /dev/null <<EOT
 #!/bin/bash
 
 #CONSTANT_VARIABLES
