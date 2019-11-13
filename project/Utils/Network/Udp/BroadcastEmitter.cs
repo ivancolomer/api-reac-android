@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace REAC2_AndroidAPI.Utils.Network.Udp
@@ -30,6 +31,8 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
 
             udpAddress = new IPEndPoint(IPAddress.Broadcast, DotNetEnv.Env.GetInt("UDP_LISTENER_PORT"));
             udpClient = new UdpClient();
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
             udpClient.EnableBroadcast = true;
 
             

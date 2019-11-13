@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace REAC_AndroidAPI.Utils
@@ -65,6 +66,13 @@ namespace REAC_AndroidAPI.Utils
                 times++;
                 return random.NextDouble() * (maxValue - minValue) + minValue;
             }
+        }
+
+        public static string GenerateRandomString(int length)
+        {
+            byte[] b = new byte[length];
+            random.NextBytes(b);
+            return Encoding.ASCII.GetString(b);
         }
     }
 }

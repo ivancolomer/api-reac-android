@@ -7,6 +7,8 @@ using REAC_AndroidAPI.Utils.Output;
 using REAC_AndroidAPI.Utils.Storage;
 using REAC_AndroidAPI.Utils.Network;
 using REAC2_AndroidAPI.Utils.Network.Udp;
+using System.IO;
+using System.Threading;
 
 namespace REAC_AndroidAPI
 {
@@ -45,9 +47,7 @@ namespace REAC_AndroidAPI
 
             SqlDatabaseManager.Initialize();
             Utils.Network.Sessions.SessionManager.Initialize();
-
-            SocketOption option = new SocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.ReuseAddress, 1);
-            ServerListener = new SocketListener(new IPEndPoint(IPAddress.Any, DotNetEnv.Env.GetInt("TCP_LISTENER_PORT")), 100, new OnNewConnectionCallback(Utils.Network.Sessions.SessionManager.HandleIncomingConnection), option);
+            ServerListener = new SocketListener(new IPEndPoint(IPAddress.Any, DotNetEnv.Env.GetInt("TCP_LISTENER_PORT")), 100, new OnNewConnectionCallback(Utils.Network.Sessions.SessionManager.HandleIncomingConnection));
             
             //FOR TESTING ONLY
             BroadcastReceiver broadcastReceiver = new BroadcastReceiver();
@@ -70,19 +70,32 @@ namespace REAC_AndroidAPI
             string line;
             while (true)
             {
-                line = Console.ReadLine();
-
-                if (line == null)
-                    return;
-
-                switch (line)
+                try
                 {
-                    case "close":
-                        ExitProgram();
-                        return;
-                    default:
-                        break;
+                    line = Console.ReadLine();
+
+                    if (line != null)
+                    {
+                        switch (line)
+                        {
+                            case "close":
+                                ExitProgram();
+                                return;
+                            default:
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Thread.Sleep(1000);
+                    }
+                    
                 }
+                catch(Exception e)
+                {
+                    Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.ERROR);
+                    Thread.Sleep(Timeout.Infinite);
+                }              
             }
         }
 
@@ -96,7 +109,7 @@ namespace REAC_AndroidAPI
             try
             {
                 NancyHost.Dispose();
-            } catch(Exception e)
+            } catch(Exception)
             {
 
             }

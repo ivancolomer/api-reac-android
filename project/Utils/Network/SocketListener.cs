@@ -3,55 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace REAC_AndroidAPI.Utils.Network
 {
-    public class SocketOption
-    {
-        private SocketOptionLevel optionLevel;
-        private SocketOptionName optionName;
-        private int optionValue;
-
-        public SocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, int optionValue)
-        {
-            this.optionLevel = optionLevel;
-            this.optionName = optionName;
-            this.optionValue = optionValue;
-        }
-
-        public SocketOptionLevel getOptionLevel()
-        {
-            return optionLevel;
-        }
-
-        public SocketOptionName getOptionName()
-        {
-            return optionName;
-        }
-
-        public int getOptionValue()
-        {
-            return optionValue;
-        }
-
-    }
-
-    public delegate void OnNewConnectionCallback(Socket Socket);
+   public delegate void OnNewConnectionCallback(Socket Socket);
 
     public class SocketListener : IDisposable
     {
         private Socket mSocket;
         private OnNewConnectionCallback mCallback;
 
-        public SocketListener(IPEndPoint LocalEndpoint, int Backlog, OnNewConnectionCallback Callback, SocketOption option = null)
+        public SocketListener(IPEndPoint LocalEndpoint, int Backlog, OnNewConnectionCallback Callback)
         {
             mCallback = Callback;
 
             mSocket = new Socket(LocalEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            if (option != null)
-                mSocket.SetSocketOption(option.getOptionLevel(), option.getOptionName(), option.getOptionValue());
+            if(!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                mSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
 
             mSocket.Bind(LocalEndpoint);
             mSocket.Listen(Backlog);

@@ -1,8 +1,10 @@
-﻿using REAC_AndroidAPI.Utils.Output;
+﻿using REAC_AndroidAPI.Utils.Network;
+using REAC_AndroidAPI.Utils.Output;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace REAC2_AndroidAPI.Utils.Network.Udp
@@ -11,7 +13,7 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
     {
         public bool stopListeningToBroadcast;
         private UdpClient udpClient;
-        private IPEndPoint broadcastAddress;
+        //private IPEndPoint broadcastAddress;
 
         public BroadcastReceiver()
         {
@@ -27,6 +29,9 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
             udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), null);*/
 
             udpClient = new UdpClient(DotNetEnv.Env.GetInt("UDP_LISTENER_PORT"));
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+
             udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), null);
         }
 
@@ -53,7 +58,7 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
                         udpClient.Close();
                         udpClient.Dispose();
                     }
-                    catch(Exception e)
+                    catch(Exception)
                     {
 
                     }
@@ -81,7 +86,7 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
                     udpClient.Dispose();
                     udpClient = null;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
 
                 }

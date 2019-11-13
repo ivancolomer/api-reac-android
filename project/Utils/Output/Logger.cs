@@ -67,13 +67,13 @@ namespace REAC_AndroidAPI.Utils.Output
             {
                 try
                 {
-                    Console.Write(formattedText);
-                    using (StreamWriter outputFile = System.IO.File.AppendText("log/" + Program.InitStartUTC.ToString("yyyy-MM-dd_HH-mm-ss") + ".log"))
+                    using (StreamWriter outputFile = File.AppendText("log/" + Program.InitStartUTC.ToString("yyyy-MM-dd_HH-mm-ss") + ".log"))
                     {
                         outputFile.Write(unformattedText);
                     }
+                    Console.Write(formattedText);
                 } catch(Exception e) {
-                    Console.WriteLine(e.ToString());
+                    //Console.WriteLine(e.ToString());
                 }
             }
         }
