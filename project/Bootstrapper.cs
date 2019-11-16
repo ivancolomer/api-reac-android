@@ -4,7 +4,7 @@ using Nancy.Responses.Negotiation;
 using Nancy.TinyIoc;
 using Nancy.Bootstrapper;
 
-using REAC_AndroidAPI.Handlers;
+using REAC_AndroidAPI.Handlers.Errors;
 using Nancy.Diagnostics;
 using REAC_AndroidAPI.Utils.Output;
 

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <RootNamespace>REAC2_AndroidAPI</RootNamespace>
+    <RootNamespace>REAC_AndroidAPI</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -6,13 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace REAC_AndroidAPI.Handlers
+namespace REAC_AndroidAPI.Handlers.Errors
 {
-    public class StatusCodeHandler404 : IStatusCodeHandler
+    public class StatusCodeHandler405 : IStatusCodeHandler
     {
         private IResponseNegotiator responseNegotiator;
 
-        public StatusCodeHandler404(IResponseNegotiator responseNegotiator)
+        public StatusCodeHandler405(IResponseNegotiator responseNegotiator)
         {
             this.responseNegotiator = responseNegotiator;
         }
@@ -21,7 +21,7 @@ namespace REAC_AndroidAPI.Handlers
         {
             //return statusCode != HttpStatusCode.InternalServerError;
             //Logger.WriteLine(statusCode.ToString(), Logger.LOG_LEVEL.INFO);
-            return statusCode == HttpStatusCode.NotFound;
+            return statusCode == HttpStatusCode.MethodNotAllowed;
         }
 
         public void Handle(HttpStatusCode statusCode, NancyContext context)
@@ -29,8 +29,8 @@ namespace REAC_AndroidAPI.Handlers
             context.NegotiationContext = new NegotiationContext();
 
             Negotiator negotiator = new Negotiator(context)
-                .WithStatusCode(HttpServiceErrorDefinition.NotFoundError.HttpStatusCode)
-                .WithModel(HttpServiceErrorDefinition.NotFoundError.ServiceErrorModel);
+                .WithStatusCode(HttpServiceErrorDefinition.NotAcceptableError.HttpStatusCode)
+                .WithModel(HttpServiceErrorDefinition.NotAcceptableError.ServiceErrorModel);
 
             context.Response = responseNegotiator.NegotiateResponse(negotiator, context);
         }

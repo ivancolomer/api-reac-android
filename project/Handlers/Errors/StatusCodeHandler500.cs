@@ -1,27 +1,24 @@
 ﻿using Nancy;
 using Nancy.ErrorHandling;
 using Nancy.Responses.Negotiation;
-using REAC_AndroidAPI.Utils.Output;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace REAC_AndroidAPI.Handlers
+namespace REAC_AndroidAPI.Handlers.Errors
 {
-    public class StatusCodeHandler405 : IStatusCodeHandler
+    public class StatusCodeHandler500 : IStatusCodeHandler
     {
         private IResponseNegotiator responseNegotiator;
 
-        public StatusCodeHandler405(IResponseNegotiator responseNegotiator)
+        public StatusCodeHandler500(IResponseNegotiator responseNegotiator)
         {
             this.responseNegotiator = responseNegotiator;
         }
 
         public bool HandlesStatusCode(HttpStatusCode statusCode, NancyContext context)
         {
-            //return statusCode != HttpStatusCode.InternalServerError;
-            //Logger.WriteLine(statusCode.ToString(), Logger.LOG_LEVEL.INFO);
-            return statusCode == HttpStatusCode.MethodNotAllowed;
+            return statusCode == HttpStatusCode.InternalServerError;
         }
 
         public void Handle(HttpStatusCode statusCode, NancyContext context)
@@ -29,8 +26,8 @@ namespace REAC_AndroidAPI.Handlers
             context.NegotiationContext = new NegotiationContext();
 
             Negotiator negotiator = new Negotiator(context)
-                .WithStatusCode(HttpServiceErrorDefinition.NotAcceptableError.HttpStatusCode)
-                .WithModel(HttpServiceErrorDefinition.NotAcceptableError.ServiceErrorModel);
+                .WithStatusCode(HttpServiceErrorDefinition.InternalServerError.HttpStatusCode)
+                .WithModel(HttpServiceErrorDefinition.InternalServerError.ServiceErrorModel);
 
             context.Response = responseNegotiator.NegotiateResponse(negotiator, context);
         }

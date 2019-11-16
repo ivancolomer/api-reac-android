@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace REAC_AndroidAPI.Handlers
+namespace REAC_AndroidAPI.Handlers.Errors
 {
     public static class HttpServiceErrorDefinition
     {

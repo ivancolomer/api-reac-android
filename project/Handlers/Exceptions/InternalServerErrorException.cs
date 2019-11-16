@@ -1,9 +1,10 @@
-﻿using REAC_AndroidAPI.Handlers;
+﻿
+using REAC_AndroidAPI.Handlers.Errors;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace REAC_AndroidAPI.Exceptions
+namespace REAC_AndroidAPI.Handlers.Exceptions
 {
     public class InternalServerErrorException : Exception, IHasHttpServiceError
     {

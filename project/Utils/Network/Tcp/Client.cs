@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace REAC_AndroidAPI.Utils.Network
+namespace REAC_AndroidAPI.Utils.Network.Tcp
 {
     public abstract class Client : IDisposable
     {

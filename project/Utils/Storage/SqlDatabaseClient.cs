@@ -56,6 +56,11 @@ namespace REAC_AndroidAPI.Utils.Storage
             return Affected;
         }
 
+        public long LastInsertedId()
+        {
+            return mCommand.LastInsertedId;
+        }
+
         public DataSet ExecuteQuerySet(string CommandText)
         {
             DataSet DataSet = new DataSet();

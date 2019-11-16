@@ -9,6 +9,7 @@ using REAC_AndroidAPI.Utils.Network;
 using REAC2_AndroidAPI.Utils.Network.Udp;
 using System.IO;
 using System.Threading;
+using REAC_AndroidAPI.Utils.Network.Tcp;
 
 namespace REAC_AndroidAPI
 {
@@ -46,8 +47,9 @@ namespace REAC_AndroidAPI
             };
 
             SqlDatabaseManager.Initialize();
-            Utils.Network.Sessions.SessionManager.Initialize();
-            ServerListener = new SocketListener(new IPEndPoint(IPAddress.Any, DotNetEnv.Env.GetInt("TCP_LISTENER_PORT")), 100, new OnNewConnectionCallback(Utils.Network.Sessions.SessionManager.HandleIncomingConnection));
+            Utils.Network.Tcp.Sessions.SessionManager.Initialize();
+            Handlers.Requests.UsersManager.Initialize();
+            ServerListener = new SocketListener(new IPEndPoint(IPAddress.Any, DotNetEnv.Env.GetInt("TCP_LISTENER_PORT")), 100, new OnNewConnectionCallback(Utils.Network.Tcp.Sessions.SessionManager.HandleIncomingConnection));
             
             //FOR TESTING ONLY
             BroadcastReceiver broadcastReceiver = new BroadcastReceiver();
@@ -129,7 +131,7 @@ namespace REAC_AndroidAPI
                 Logger.WriteLine("Errror closing socket: " + e.ToString(), Logger.LOG_LEVEL.ERROR);
             }
 
-            foreach (var Session in Utils.Network.Sessions.SessionManager.CopySessions)
+            foreach (var Session in Utils.Network.Tcp.Sessions.SessionManager.CopySessions)
             {
                 try
                 {

@@ -68,11 +68,12 @@ namespace REAC_AndroidAPI.Utils
             }
         }
 
-        public static string GenerateRandomString(int length)
+        public static byte[] GenerateRandomBytes(int bytesLength)
         {
-            byte[] b = new byte[length];
+            byte[] b = new byte[bytesLength];
             random.NextBytes(b);
-            return Encoding.ASCII.GetString(b);
+
+            return b;
         }
     }
 }

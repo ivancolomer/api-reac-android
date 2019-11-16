@@ -72,7 +72,7 @@ namespace REAC_AndroidAPI.Utils.Output
                         outputFile.Write(unformattedText);
                     }
                     Console.Write(formattedText);
-                } catch(Exception e) {
+                } catch(Exception) {
                     //Console.WriteLine(e.ToString());
                 }
             }

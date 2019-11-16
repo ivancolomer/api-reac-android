@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace REAC_AndroidAPI.Utils.Network.Sessions
+namespace REAC_AndroidAPI.Utils.Network.Tcp.Sessions
 {
     public class Session : Client
     {
