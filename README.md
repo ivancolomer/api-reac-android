@@ -3,42 +3,52 @@
 This API will be used as a middleware between the Android Application and the Database/Logic of the server.
 The API will be RESTful and their CRUD operations are defined below:
 
-## Documentation
+## General Documentation
+
+### IPAddress
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /api/ipaddress      | Returns the External IP Address of the Server |
+
+### Register
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| POST    | /api/register      | Register a new Administrator when there isn't any (on first setup) |
 
 ### Login
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| GET    | /login              | Checks if the given $PASSWORD and $USER_ID is good, and if so, returns a $SESSION_ID used for the following queries |
+| GET    | /api/login          | Login for Administrator users |
 
 ## User
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| POST   | /user               | Registers a new user into the database by given an $SERIAL_ID |
-| GET    | /user               | Retrieve all the information about the user given an $USER_ID and $SESSION_ID (logged-in) |
-| PUT    | /user               | Updates information about the logged-in user (name, profile photo, ...) |
+| POST   | /api/user               | Registers a new user into the database by given an $SERIAL_ID |
+| GET    | /api/user               | Retrieve all the information about the user given an $USER_ID and $SESSION_ID (logged-in) |
+| PUT    | /api/user               | Updates information about the logged-in user (name, profile photo, ...) |
 
 ### DataLog
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| GET    | /log                | Retrieve all datalog from the house given an $USER_ID and $SESSION_ID of an owner (given a range of dates) |
+| GET    | /api/log                | Retrieve all datalog from the house given an $USER_ID and $SESSION_ID of an owner (given a range of dates) |
 
 ### Member
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| GET    | /members            | Retrieve a list of all the members (with all information) the owner has |
-| POST   | /member             | Send a request to add him/her as a member of the house, an one-time password will be returned with a limited time of 5min for the member to add it to his mobile device |
-| PUT    | /member             | Modify member information and owner permissions (create temporary user for retrieving face and fingerprint) |
-| DELETE | /member             | Modify member information and owner permissions |
+| GET    | /api/members            | Retrieve a list of all the members (with all information) the owner has |
+| POST   | /api/member             | Send a request to add him/her as a member of the house, an one-time password will be returned with a limited time of 5min for the member to add it to his mobile device |
+| PUT    | /api/member             | Modify member information and owner permissions (create temporary user for retrieving face and fingerprint) |
+| DELETE | /api/member             | Modify member information and owner permissions |
 
 ### Open Door-Lock
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| GET    | /door               | Ask the server to open the door |
+| GET    | /api/door               | Ask the server to open the door |
 
 ### Camera streaming
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| GET    | /camera             | Ask the server to give an url (that will be playable by VLC integrated API in Android) back from the video streaming camera |
+| GET    | /api/camera             | Ask the server to give an url (that will be playable by VLC integrated API in Android) back from the video streaming camera |
 
 ## Installation
 
@@ -48,4 +58,170 @@ sudo apt update && sudo apt install curl
 bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/master/install.sh)
 ```
 
+# RestAPI Documentation
 
+**Packet Format**
+----
+  The packet format is in JSON. There is a basic struct for all the packets returned by the API:
+```javascript
+{
+  "error": true,
+  "errorMessage": "expired_session_id",
+  "content": 0
+}
+```
+   Where `error` is a `boolean` type which tells if the request succeed or not.<br />
+   Where `errorMessage` is a `string` type which is `null` if there isn't any error, or the error's identifier if there was an error.<br />
+   Where `content` is a JSONObject which it's used to display different things depending on the request. When there's an error, it's    always 0.<br />
+
+
+**IPAddress**
+----
+  Returns a String on `content` field with the External IPAddress of the Server.
+
+* ***URL***
+
+  /api/ipaddress
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+ 
+  None
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": false,
+  "errorMessage": "",
+  "content": "5.186.124.216"
+}
+```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": true,
+  "errorMessage": "unable_get_ipaddress",
+  "content": 0
+}
+```
+
+**Register**
+----
+   Register a new Administrator when there isn't any (on first setup) and returns a String on `content` field with the new generated random password.
+
+* ***URL***
+
+  /api/register
+
+* **Method:**
+
+  `POST`
+  
+* **URL Params**
+
+  None
+
+* **Data Params**
+
+  **Required:**
+ 
+   `serial_id=[string]` the serial code of the server device (from factory).<br />
+   `user_name=[string]` the name of the new administrator.
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+    "error": false,
+    "errorMessage": "",
+    "content": "HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA="
+}
+```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": true,
+  "errorMessage": "missing_request_parameters",
+  "content": 0
+}
+```
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": true,
+  "errorMessage": "short_username_length",
+  "content": 0
+}
+```
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": true,
+  "errorMessage": "database_error",
+  "content": 0
+}
+```
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": true,
+  "errorMessage": "admin_already_exists",
+  "content": 0
+}
+```
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": true,
+  "errorMessage": "wrong_serial_id",
+  "content": 0
+}
+```
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": true,
+  "errorMessage": "name_already_in_use",
+  "content": 0
+}
+```
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": true,
+  "errorMessage": "member_is_already_an_admin",
+  "content": 0
+}
+```
