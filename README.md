@@ -25,7 +25,7 @@ The API will be RESTful and their CRUD operations are defined below:
 | ------ | ------------------- | --- |
 | GET    | /api/users          | Retrieves a list with information about every member |
 
-### [User Images List](#user_image_list)
+### [User Images List](#user_images_list)
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/user/:user_id/images/ | Retrieves a list with all the photo URIs from that user |
