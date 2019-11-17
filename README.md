@@ -492,18 +492,6 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
       "content": 0
     }
     ```
-    
-  OR
-
-  * **Code:** 200 <br />
-    **Content:** 
-    ```javascript
-    {
-      "error": true,
-      "errorMessage": "wrong_username",
-      "content": 0
-    }
-    ```
 
   OR
 
