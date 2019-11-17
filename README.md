@@ -5,17 +5,17 @@ The API will be RESTful and their CRUD operations are defined below:
 
 ## General Documentation   
 
-### [IPAddress](#ip_address) 
+### [IPAddress](#ip_address_extra) 
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/ipaddress      | Returns the External IP Address of the Server |
 
-### Register
+### [Register](#register_extra) 
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | POST    | /api/register      | Register a new Administrator when there isn't any (on first setup) |
 
-### Login
+### [Login](#login_extra) 
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/login          | Login for Administrator users |
@@ -74,7 +74,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
    Where `errorMessage` is a `string` type which is `null` if there isn't any error, or the error's identifier if there was an error.<br />
    Where `content` is a JSONObject which it's used to display different things depending on the request. When there's an error, it's    always 0.<br />
 
-<a name="ip_address"/>
+<a name="ip_address_extra"/>
 
 **IPAddress**
 ----
@@ -119,6 +119,8 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
   "content": 0
 }
 ```
+
+<a name="register_extra"/>
 
 **Register**
 ----
@@ -226,3 +228,75 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
   "content": 0
 }
 ```
+
+<a name="login_extra"/>
+
+**Login**
+----
+   Used for login with your admin account and returns a String on `content` field with the new generated random session_id. This session_id will be valid during the following 15 minutes. Once this time has passed, it will not be longer valid and all the calls using this session_id will get an expired_session_id error.
+
+* ***URL***
+
+  /api/login
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+  **Required:**
+ 
+   `user_name=[string]` the name of the administrator account.<br />
+   `password=[string]` the password of the administrator account (in Base64).
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+    "error": false,
+    "errorMessage": "",
+    "content": "F9-20-F6-89-6E-3E-76-4D-A3-20-EB-5F-74-F9-99-50"
+}
+```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": true,
+  "errorMessage": "missing_request_parameters",
+  "content": 0
+}
+```
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": true,
+  "errorMessage": "short_username_length",
+  "content": 0
+}
+```
+
+  * **Code:** 200 <br />
+    **Content:** 
+```javascript
+{
+  "error": true,
+  "errorMessage": "wrong_user_password",
+  "content": 0
+}
+```
+
+
+
