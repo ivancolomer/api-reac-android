@@ -38,27 +38,20 @@ The API will be RESTful and their CRUD operations are defined below:
 
 
 
-<!-- NOT CHECKED YET
+<!-- NOT DONE YET
 
 
 ## User
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| POST   | /api/user               | Registers a new user into the database by given an $SERIAL_ID |
-| PUT    | /api/user               | Updates information about the logged-in user (name, profile photo, ...) |
+| POST   | /api/user               | Registers a new user into the database (an one-time password will be returned with a limited time of 5min for the member to add it to his mobile device) |
+| PUT    | /api/user/:username     | Updates information about the user (name, profile photo, role, ... |
+| DELETE | /api/user/:username     | Delete the instance of user |
 
 ### DataLog
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/log                | Retrieve all datalog from the house given an $USER_ID and $SESSION_ID of an owner (given a range of dates) |
-
-### Member
-| Method | Url | Action |
-| ------ | ------------------- | --- |
-| GET    | /api/members            | Retrieve a list of all the members (with all information) the owner has |
-| POST   | /api/member             | Send a request to add him/her as a member of the house, an one-time password will be returned with a limited time of 5min for the member to add it to his mobile device |
-| PUT    | /api/member             | Modify member information and owner permissions (create temporary user for retrieving face and fingerprint) |
-| DELETE | /api/member             | Modify member information and owner permissions |
 
 ### Open Door-Lock
 | Method | Url | Action |
