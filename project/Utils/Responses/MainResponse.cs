@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace REAC_AndroidAPI.Utils
+namespace REAC_AndroidAPI.Utils.Responses
 {
     public class MainResponse<T>
     {

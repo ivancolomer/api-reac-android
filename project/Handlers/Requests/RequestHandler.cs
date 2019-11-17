@@ -1,22 +1,19 @@
 ﻿using Nancy;
 using Nancy.Extensions;
 using Newtonsoft.Json.Linq;
-using REAC_AndroidAPI.Handlers;
 using REAC_AndroidAPI.Entities;
 using REAC_AndroidAPI.Utils;
-using REAC_AndroidAPI.Utils.Loop;
-using REAC_AndroidAPI.Utils.Output;
 using System;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using REAC_AndroidAPI.Utils.Network;
+using System.Collections.Generic;
+using REAC_AndroidAPI.Utils.Responses;
+using REAC_AndroidAPI.Utils.Storage;
 
 namespace REAC_AndroidAPI.Handlers.Requests
 {
     public class RequestHandler : NancyModule
     {
-        
-
         public RequestHandler()
             : base("api")
         {
@@ -52,7 +49,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                     return Response.AsJson(new MainResponse<byte>(true, "short_username_length"));
 
                 //Check if the user and password are in the database
-                User user = User.GetAdministratorFromDB(userName, password);
+                LocalUser user = LocalUser.GetAdministratorFromDB(userName, password);
                 if (user == null)
                 {
                     return Response.AsJson(new MainResponse<byte>(true, "wrong_user_password"));
@@ -86,7 +83,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 if(userName.Length < 4)
                     return Response.AsJson(new MainResponse<byte>(true, "short_username_length"));
 
-                int adminCount = User.GetAdministratorsCountFromDB();
+                int adminCount = LocalUser.GetAdministratorsCountFromDB();
 
                 if(adminCount == -1)
                     return Response.AsJson(new MainResponse<byte>(true, "database_error"));
@@ -100,7 +97,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 //INSERT NEW ADMINISTRATOR ACCOUNT, return random password...
                 byte[] newPasswordBytes = RandomGenerator.GenerateRandomBytes(32);
 
-                int status = User.InsertNewAdministratorToDB(new User
+                int status = LocalUser.InsertNewAdministratorToDB(new LocalUser
                 {
                     Name = userName,
                     Role = "ADMIN"
@@ -126,7 +123,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                     return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
                 }
 
-                User user;
+                LocalUser user;
                 if(!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user)) 
                     return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
 
@@ -153,6 +150,75 @@ namespace REAC_AndroidAPI.Handlers.Requests
                     new User(userId),
                 });*/
             });
+
+            Get("/user/image/{id}", async (x, ct) =>
+            {
+                uint id = 0;
+                string sessionId = this.Request.Query["session_id"];
+                
+                if (sessionId == null || !UInt32.TryParse(x.id.ToString(), out id))
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                return Response.FromByteArray(ProfilePhoto.GetProfilePhoto(id), "image/jpeg");
+            });
+
+            Get("/user/{name}/images", async (x, ct) =>
+            {
+                string sessionId = this.Request.Query["session_id"];
+                string name = x.name.ToString();
+
+                if (sessionId == null || name == null)
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                if (name.Length < 4)
+                    return Response.AsJson(new MainResponse<byte>(true, "short_username_length"));
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                List<String> images;
+                int status = LocalUser.GetImagesByUserFromDB(name, out images);
+
+                if (status == -1)
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+                /*else if(status == -1)
+                    return Response.AsJson(new MainResponse<byte>(true, "wrong_username"));*/
+
+                return new MainResponse<List<String>>(images);
+            });
+
+            //USERS
+            Get("/users", async (x, ct) =>
+            {
+                string sessionId = this.Request.Query["session_id"];
+                if (sessionId == null)
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                List<User> users;
+                int status = LocalUser.GetUsersFromDB(out users);
+
+                if(status < 0)
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+                return new MainResponse<List<User>>(users);
+            });
+
+            
 
 #pragma warning restore CS1998
         }

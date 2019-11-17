@@ -4,6 +4,9 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RootNamespace>REAC_AndroidAPI</RootNamespace>
+    <ApplicationIcon />
+    <Win32Resource />
+    <StartupObject>REAC_AndroidAPI.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

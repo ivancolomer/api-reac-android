@@ -33,7 +33,7 @@ namespace REAC_AndroidAPI
         {
             InitStartUTC = DateTime.UtcNow;
 
-            DotNetEnv.Env.Load(AppDomain.CurrentDomain.BaseDirectory + System.IO.Path.DirectorySeparatorChar + ".." + System.IO.Path.DirectorySeparatorChar + ".env");
+            DotNetEnv.Env.Load(AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".env");
             Logger.Initialize();
 
             Console.CancelKeyPress += delegate

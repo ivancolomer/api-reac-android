@@ -13,12 +13,12 @@ namespace REAC_AndroidAPI.Handlers.Requests
         private const int LOOP_MILLS = 1 * 60 * 1000; //1min
         private const int MAX_LIVE_TIME = 10 * 60 * 1000; //10min
 
-        private static ConcurrentDictionary<string, User> ConnectedUsers;
+        private static ConcurrentDictionary<string, LocalUser> ConnectedUsers;
         private static InfiniteLoop Looper;
 
         public static void Initialize()
         {
-            ConnectedUsers = new ConcurrentDictionary<string, User>();
+            ConnectedUsers = new ConcurrentDictionary<string, LocalUser>();
             Looper = new InfiniteLoop(LOOP_MILLS, new OnTickCallback(CheckConnectedUsers));
         }
 
@@ -34,7 +34,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
             }
         }
 
-        public static void AddUser(User user)
+        public static void AddUser(LocalUser user)
         {
             do
             {
@@ -54,7 +54,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
             }
         }
 
-        public static bool CheckLogIn(string sessionId, string ipAddress, out User user) //string userId
+        public static bool CheckLogIn(string sessionId, string ipAddress, out LocalUser user) //string userId
         {
             /*foreach (var kvp in ConnectedUsers)
             {
