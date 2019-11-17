@@ -3,9 +3,9 @@
 This API will be used as a middleware between the Android Application and the Database/Logic of the server.
 The API will be RESTful and their CRUD operations are defined below:
 
-## General Documentation
+## General Documentation   
 
-### IPAddress
+### [IPAddress](#ip_address) 
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/ipaddress      | Returns the External IP Address of the Server |
@@ -74,6 +74,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
    Where `errorMessage` is a `string` type which is `null` if there isn't any error, or the error's identifier if there was an error.<br />
    Where `content` is a JSONObject which it's used to display different things depending on the request. When there's an error, it's    always 0.<br />
 
+<a name="ip_address"/>
 
 **IPAddress**
 ----
