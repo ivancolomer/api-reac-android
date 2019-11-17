@@ -1,0 +1,172 @@
+{
+	"info": {
+		"_postman_id": "bf2d0167-d8e5-4b95-86fe-4ac03b69437c",
+		"name": "REAC",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "IpAddress",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "192.168.1.154:8080/api/ipaddress",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"154"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"ipaddress"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Administrator",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"serial_id\":\"123456789REAC0987654321\",\n\t\"user_name\":\"ivan2\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "192.168.1.154:8080/api/register",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"154"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Administrator",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "192.168.1.154:8080/api/login?password=HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA=&user_name=ivan",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"154"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"login"
+					],
+					"query": [
+						{
+							"key": "password",
+							"value": "HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA="
+						},
+						{
+							"key": "user_name",
+							"value": "ivan"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Users List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "192.168.1.154:8080/api/users?session_id",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"154"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"users"
+					],
+					"query": [
+						{
+							"key": "session_id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Images List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Image",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "192.168.1.154:8080/api/user/image/1?session_id=CD-73-35-B1-80-1C-A0-4C-A4-1B-D7-E3-7B-A8-D8-86",
+					"host": [
+						"192",
+						"168",
+						"1",
+						"154"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						"image",
+						"1"
+					],
+					"query": [
+						{
+							"key": "session_id",
+							"value": "CD-73-35-B1-80-1C-A0-4C-A4-1B-D7-E3-7B-A8-D8-86"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

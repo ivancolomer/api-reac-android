@@ -131,4 +131,22 @@ sudo chmod +x telegram.sh
 
 wget https://raw.githubusercontent.com/ivancolomer/api-reac-android/master/sshd_config
 
+wget https://raw.githubusercontent.com/ivancolomer/api-reac-android/master/database.sql
+
+sudo mysql_secure_installation
+
+echo "Please enter root user MySQL password!"
+echo "Note: password will be hidden when typing"
+
+echo -n Password: 
+read -s password
+echo
+
+sudo mysql -uroot -p${password} -e "CREATE DATABASE reac /*\!40100 DEFAULT CHARACTER SET utf8 */;"
+sudo mysql -uroot -p${password} -e "CREATE USER reac_user@localhost IDENTIFIED BY 'SemesterProject';"
+sudo mysql -uroot -p${password} -e "GRANT ALL PRIVILEGES ON reac.* TO 'reac_user'@'localhost';"
+sudo mysql -uroot -p${password} -e "FLUSH PRIVILEGES;"
+
+sudo mysql -uroot -p${password} reac < database.sql
+
 echo "FINISHED, remember to copy /etc/ssh/sshd_config and mv the downloaded here to there"
