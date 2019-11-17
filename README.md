@@ -100,25 +100,25 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": false,
-  "errorMessage": "",
-  "content": "5.186.124.216"
-}
-```
+    ```javascript
+    {
+      "error": false,
+      "errorMessage": "",
+      "content": "5.186.124.216"
+    }
+    ```
  
 * **Error Response:**
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": true,
-  "errorMessage": "unable_get_ipaddress",
-  "content": 0
-}
-```
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "unable_get_ipaddress",
+      "content": 0
+    }
+    ```
 
 <a name="register_extra"/>
 
@@ -149,85 +149,95 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-    "error": false,
-    "errorMessage": "",
-    "content": "HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA="
-}
-```
+    ```javascript
+    {
+        "error": false,
+        "errorMessage": "",
+        "content": "HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA="
+    }
+    ```
  
 * **Error Response:**
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": true,
-  "errorMessage": "missing_request_parameters",
-  "content": 0
-}
-```
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+
+  OR
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": true,
-  "errorMessage": "short_username_length",
-  "content": 0
-}
-```
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "short_username_length",
+      "content": 0
+    }
+    ```
+
+  OR
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": true,
-  "errorMessage": "database_error",
-  "content": 0
-}
-```
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
+
+  OR
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": true,
-  "errorMessage": "admin_already_exists",
-  "content": 0
-}
-```
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "admin_already_exists",
+      "content": 0
+    }
+    ```
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": true,
-  "errorMessage": "wrong_serial_id",
-  "content": 0
-}
-```
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "wrong_serial_id",
+      "content": 0
+    }
+    ```
+
+  OR
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": true,
-  "errorMessage": "name_already_in_use",
-  "content": 0
-}
-```
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "name_already_in_use",
+      "content": 0
+    }
+    ```
+
+  OR
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": true,
-  "errorMessage": "member_is_already_an_admin",
-  "content": 0
-}
-```
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "member_is_already_an_admin",
+      "content": 0
+    }
+    ```
 
 <a name="login_extra"/>
 
@@ -258,45 +268,48 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-    "error": false,
-    "errorMessage": "",
-    "content": "F9-20-F6-89-6E-3E-76-4D-A3-20-EB-5F-74-F9-99-50"
-}
-```
+    ```javascript
+    {
+        "error": false,
+        "errorMessage": "",
+        "content": "F9-20-F6-89-6E-3E-76-4D-A3-20-EB-5F-74-F9-99-50"
+    }
+    ```
  
 * **Error Response:**
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": true,
-  "errorMessage": "missing_request_parameters",
-  "content": 0
-}
-```
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+
+  OR
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": true,
-  "errorMessage": "short_username_length",
-  "content": 0
-}
-```
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "short_username_length",
+      "content": 0
+    }
+    ```
+
+  OR
 
   * **Code:** 200 <br />
     **Content:** 
-```javascript
-{
-  "error": true,
-  "errorMessage": "wrong_user_password",
-  "content": 0
-}
-```
-
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "wrong_user_password",
+      "content": 0
+    }
+    ```
 
 
