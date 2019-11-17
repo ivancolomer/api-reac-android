@@ -28,7 +28,7 @@ The API will be RESTful and their CRUD operations are defined below:
 ### [User Images List](#user_images_list)
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| GET    | /api/user/:user_id/images/ | Retrieves a list with all the photo URIs from that user |
+| GET    | /api/user/:username/images/ | Retrieves a list with all the photo URIs from that user |
 
 ### [User Image](#user_image)
 | Method | Url | Action |
@@ -440,7 +440,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
 * ***URL***
 
-  /api/user/:user_id/images/
+  /api/user/:username/images/
 
 * **Method:**
 
@@ -450,7 +450,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
   **Required:**
  
-   `:user_id=[uint]` the id of the user. <br />
+   `:username=[string]` the name of the user. <br />
    `session_id=[string]` the logged-in session_id.
 
 * **Data Params**
@@ -500,7 +500,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     ```javascript
     {
       "error": true,
-      "errorMessage": "wrong_userid",
+      "errorMessage": "wrong_username",
       "content": 0
     }
     ```
