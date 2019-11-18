@@ -53,8 +53,10 @@ namespace REAC_AndroidAPI
             
             //FOR TESTING ONLY
             BroadcastReceiver broadcastReceiver = new BroadcastReceiver();
-            
-            
+
+            VideoStreamServer videoStreamServer = new VideoStreamServer();
+
+
             BroadcastEmitter = new BroadcastEmitter();
             NancyHost = new NancyHost(new HostConfiguration { RewriteLocalhost = true }, new Uri("http://localhost:" + DotNetEnv.Env.GetInt("WEB_SERVER_PORT") + "/")); 
             try
