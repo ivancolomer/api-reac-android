@@ -1,4 +1,5 @@
-﻿using REAC_AndroidAPI.Utils.Network;
+﻿using REAC_AndroidAPI;
+using REAC_AndroidAPI.Utils.Network;
 using REAC_AndroidAPI.Utils.Output;
 using System;
 using System.Collections.Concurrent;
@@ -10,10 +11,8 @@ using System.Text;
 
 namespace REAC2_AndroidAPI.Utils.Network.Udp
 {
-    class VideoStreamServer
+    public class VideoStreamServer
     {
-        //raspivid -n -vf -hf -ih -w 320 -h 240 -fps 24 -t 0 -o udp://192.168.1.154:8084
-
         public bool stopListeningTo;
         private UdpClient udpClient;
 
@@ -37,20 +36,16 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
                 IPEndPoint from = new IPEndPoint(0, 0);
                 byte[] receiveBytes = udpClient.EndReceive(ar, ref from);
 
-                string ipReceiver = from.ToString().Split(':')[0];
-                //string receiveString = Encoding.UTF8.GetString(receiveBytes);
-                /*if(ipReceiver == "locking_device_ip")
+                if(Program.LockerDevicesManager.IsIPAddressValid(from.ToString().Split(':')[0]))
                 {
+                    try
+                    {
+                        packetCollection.TryAdd(receiveBytes);
+                    }
+                    catch (Exception)
+                    {
 
-                }*/
-
-                try
-                {
-                    packetCollection.TryAdd(receiveBytes);
-                }
-                catch(Exception)
-                {
-
+                    }
                 }
 
                 //Logger.WriteLineWithHeader($"Received from {ipReceiver}: {receiveString}", "STREAM", Logger.LOG_LEVEL.DEBUG);

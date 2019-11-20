@@ -11,7 +11,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
     public class UsersManager
     {
         private const int LOOP_MILLS = 1 * 60 * 1000; //1min
-        private const int MAX_LIVE_TIME = 10 * 60 * 1000; //10min
+        public const int MAX_LIVE_TIME = 10 * 60 * 1000; //10min
 
         private static ConcurrentDictionary<string, LocalUser> ConnectedUsers;
         private static InfiniteLoop Looper;
@@ -29,6 +29,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 if (Time.GetTime() - user.Value.TimeCreated >= MAX_LIVE_TIME)
                 {
                     ConnectedUsers.TryRemove(user.Key, out _);
+                    Program.VideoClientsManager.RemoveIpAddress(user.Value.IPAddress);
                     //Logger.WriteLine("DISCONNECTED: " + user.Key, Logger.LOG_LEVEL.DEBUG);
                 }
             }
@@ -50,6 +51,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 if (keyvalue.Value.Name == userName)
                 {
                     ConnectedUsers.TryRemove(keyvalue.Key, out _);
+                    Program.VideoClientsManager.RemoveIpAddress(keyvalue.Value.IPAddress);
                 }
             }
         }

@@ -65,7 +65,7 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
             {
                 if(udpClient != null && udpAddress != null)
                 {
-                    byte[] bytes = Encoding.UTF8.GetBytes("Something");
+                    byte[] bytes = Encoding.UTF8.GetBytes("REAC");
                     //Logger.WriteLine("Sending message to " + udpAddress.ToString(), Logger.LOG_LEVEL.DEBUG);
                     udpClient.Send(bytes, bytes.Length, udpAddress);
                     //Logger.WriteLine("Broadcast message sent to " + udpAddress.ToString(), Logger.LOG_LEVEL.DEBUG);

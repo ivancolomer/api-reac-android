@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-namespace REAC_AndroidAPI.Utils.Network.Tcp
+namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
 {
    public delegate void OnNewConnectionCallback(Socket Socket);
 

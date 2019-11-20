@@ -58,7 +58,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 //If everything is good so far, update database with a new SessionID(GUID), save the IPAddress(UserHostAddress) and the LastTimeLogged
                 //so we can ask for giving the password again if it was long since we haven't asked.
 
-                user.IPAddress = this.Request.UserHostAddress;
+                user.IPAddress = this.Request.UserHostAddress.ToString().Split(':')[0];
                 user.TimeCreated = Time.GetTime();
 
                 UsersManager.RemoveUserByUserName(userName);
@@ -215,10 +215,33 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 if(status < 0)
                     return Response.AsJson(new MainResponse<byte>(true, "database_error"));
 
-                return new MainResponse<List<User>>(users);
+                return Response.AsJson(new MainResponse<List<User>>(users));
             });
 
-            
+            Get("/video", async (x, ct) =>
+            {
+                string sessionId = this.Request.Query["session_id"];
+                if (sessionId == null)
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                string ipAddress = NetworkUtils.GetExternalIPAddress();
+                if (ipAddress == null)
+                    return Response.AsJson(new MainResponse<byte>(true, "unable_get_ipaddress"));
+
+                if (Time.GetTime() - user.TimeCreated >= 5 * 60 * 1000)
+                {
+                    user.TimeCreated += 5 * 60 * 1000;
+                }
+                Program.VideoClientsManager.AddIPAddress(user.IPAddress);
+                //tcp/h264://192.168.1.154:8082
+                return new MainResponse<String>("tcp/h264://" + ipAddress + ":" + DotNetEnv.Env.GetInt("TCP_VIDEO_LISTENER_PORT").ToString());
+            });
 
 #pragma warning restore CS1998
         }

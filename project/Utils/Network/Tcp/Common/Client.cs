@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace REAC_AndroidAPI.Utils.Network.Tcp
+namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
 {
     public abstract class Client : IDisposable
     {
+        private const int BUFFER_LENGTH = 4096;
+
         private byte[] Buffer;
         private Socket Socket;
 
@@ -34,7 +37,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp
         {
             this.CleanUpLock = new object();
             this.lockSync = new object();
-            this.Buffer = new byte[2048];
+            this.Buffer = new byte[BUFFER_LENGTH];
             this.Socket = socket;
             this.State = ConnectionState.Open;
             this.Address = ((IPEndPoint)socket.RemoteEndPoint).ToString().Split(':')[0];
@@ -130,6 +133,11 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp
             {
                 //Log.Exception(ex, "Error while receiving packet.");
             }
+        }
+
+        public void Send(string Message)
+        {
+            Send(Encoding.UTF8.GetBytes(Message + (char)0x00));
         }
 
         public virtual void Send(byte[] Data)

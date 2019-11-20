@@ -9,15 +9,27 @@ namespace REAC_AndroidAPI.Utils.Network
 {
     class NetworkUtils
     {
+        private readonly static bool USE_EXTERNAL_IP = false;
+
         private static string ExternalIPAddress = null;
 
         public static string GetExternalIPAddress()
         {
-            if(ExternalIPAddress == null)
+            if (ExternalIPAddress == null)
             {
                 try
                 {
-                    ExternalIPAddress = new WebClient().DownloadString("https://api.ipify.org");
+                    if (USE_EXTERNAL_IP)
+                        ExternalIPAddress = new WebClient().DownloadString("https://api.ipify.org");
+                    else
+                    {
+                        using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+                        {
+                            socket.Connect("8.8.8.8", 65530);
+                            IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
+                            ExternalIPAddress = endPoint.Address.ToString();
+                        }
+                    }
                 }
                 catch (Exception e)
                 {

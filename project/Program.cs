@@ -9,7 +9,9 @@ using REAC_AndroidAPI.Utils.Network;
 using REAC2_AndroidAPI.Utils.Network.Udp;
 using System.IO;
 using System.Threading;
-using REAC_AndroidAPI.Utils.Network.Tcp;
+using REAC_AndroidAPI.Utils.Network.Tcp.Common;
+using REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices;
+using REAC_AndroidAPI.Utils.Network.Tcp.StreamVideoClients;
 
 namespace REAC_AndroidAPI
 {
@@ -24,9 +26,14 @@ namespace REAC_AndroidAPI
     {
         public static DateTime InitStartUTC { get; set; }
 
-        private static SocketListener ServerListener;
         private static BroadcastEmitter BroadcastEmitter;
         private static NancyHost NancyHost;
+
+        public static LockerDevicesManager LockerDevicesManager;
+        public static VideoClientsManager VideoClientsManager;
+
+        public static VideoStreamServer VideoStreamServer;
+
         private static bool HasExited = false;
 
         static void Main(string[] args)
@@ -47,15 +54,11 @@ namespace REAC_AndroidAPI
             };
 
             SqlDatabaseManager.Initialize();
-            Utils.Network.Tcp.Sessions.SessionManager.Initialize();
+
+            VideoStreamServer = new VideoStreamServer();
+            LockerDevicesManager = new LockerDevicesManager();
+            VideoClientsManager = new VideoClientsManager();
             Handlers.Requests.UsersManager.Initialize();
-            ServerListener = new SocketListener(new IPEndPoint(IPAddress.Any, DotNetEnv.Env.GetInt("TCP_LISTENER_PORT")), 100, new OnNewConnectionCallback(Utils.Network.Tcp.Sessions.SessionManager.HandleIncomingConnection));
-            
-            //FOR TESTING ONLY
-            BroadcastReceiver broadcastReceiver = new BroadcastReceiver();
-
-            VideoStreamServer videoStreamServer = new VideoStreamServer();
-
 
             BroadcastEmitter = new BroadcastEmitter();
             NancyHost = new NancyHost(new HostConfiguration { RewriteLocalhost = true }, new Uri("http://localhost:" + DotNetEnv.Env.GetInt("WEB_SERVER_PORT") + "/")); 
@@ -126,14 +129,35 @@ namespace REAC_AndroidAPI
         {
             try
             {
-                ServerListener.Dispose();
+                VideoClientsManager.ServerListener.Dispose();
             }
             catch (Exception e)
             {
-                Logger.WriteLine("Errror closing socket: " + e.ToString(), Logger.LOG_LEVEL.ERROR);
+                Logger.WriteLine("Error closing socket: " + e.ToString(), Logger.LOG_LEVEL.ERROR);
             }
 
-            foreach (var Session in Utils.Network.Tcp.Sessions.SessionManager.CopySessions)
+            try
+            {
+                LockerDevicesManager.ServerListener.Dispose();
+            }
+            catch (Exception e)
+            {
+                Logger.WriteLine("Error closing socket: " + e.ToString(), Logger.LOG_LEVEL.ERROR);
+            }
+
+            foreach (var Session in VideoClientsManager.CopySessions)
+            {
+                try
+                {
+                    Session.Close();
+                }
+                catch (Exception e)
+                {
+                    Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.ERROR);
+                }
+            }
+
+            foreach (var Session in LockerDevicesManager.CopySessions)
             {
                 try
                 {
