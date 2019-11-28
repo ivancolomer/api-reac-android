@@ -60,9 +60,9 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.StreamVideoClients
             return new SocketListener(new IPEndPoint(IPAddress.Any, DotNetEnv.Env.GetInt("TCP_VIDEO_LISTENER_PORT")), 100, new OnNewConnectionCallback(this.HandleIncomingConnection));
         }
 
-        public void AddIPAddress(string ipAddress)
+        public bool AddIPAddress(string ipAddress)
         {
-            ValidIpAddress.Add(ipAddress);
+            return ValidIpAddress.Add(ipAddress);
         }
 
         public void RemoveIpAddress(string ipAddress)

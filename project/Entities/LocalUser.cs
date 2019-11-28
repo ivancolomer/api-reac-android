@@ -83,7 +83,7 @@ namespace REAC_AndroidAPI.Entities
             return count;
         }
 
-        public static int GetImagesByUserFromDB(string userName, out List<String> images)
+        public static int GetImagesByUserFromDB(uint userId, out List<String> images)
         {
             images = new List<String>();
 
@@ -92,11 +92,11 @@ namespace REAC_AndroidAPI.Entities
             {
                 using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
                 {
-                    client.SetParameter("@user_name", userName);
+                    client.SetParameter("@user_id", userId);
                     table = client.ExecuteQueryTable("SELECT p.id " +
                         "FROM Photo AS p " +
                         "INNER JOIN Member AS m ON m.id = p.member_id " +
-                        "WHERE m.name = @user_name;");
+                        "WHERE m.id = @user_id;");
 
                 }
             }
@@ -112,6 +112,43 @@ namespace REAC_AndroidAPI.Entities
             {
                 images.Add(URL_TO_IMAGE + row["id"].ToString());
             }
+
+            return 0;
+        }
+
+        public static int GetUserFromDB(uint userId, out User user)
+        {
+            DataRow row = null;
+            user = null;
+
+            try
+            {
+                using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
+                {
+                    client.SetParameter("@user_id", userId);
+                    row = client.ExecuteQueryRow("SELECT m.id, m.name, m.role, m.profile_photo, a.id AS admin_id " +
+                        "FROM Member AS m " +
+                        "LEFT JOIN Administrator AS a ON m.id = a.member_id " +
+                        "WHERE m.id = @user_id;");
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.WARN);
+            }
+
+            if (row == null)
+                return -1;
+
+            uint profilePhoto = UInt32.TryParse(row["profile_photo"].ToString(), out profilePhoto) ? profilePhoto : 0;
+            uint adminID = UInt32.TryParse(row["admin_id"].ToString(), out adminID) ? adminID : 0;
+
+            User newUser = new User();
+            user.UserID = userId;
+            user.Role = row["role"].ToString();
+            user.IsOwner = adminID > 0;
+            user.Name = row["name"].ToString();
+            user.ProfilePhoto = URL_TO_IMAGE + profilePhoto;
 
             return 0;
         }
@@ -160,7 +197,7 @@ namespace REAC_AndroidAPI.Entities
             return 0;
         }
 
-        public static int InsertNewMemberToDB(LocalUser user, SqlDatabaseClient client = null)
+        public static long InsertNewMemberToDB(User user, SqlDatabaseClient client = null)
         {
             bool clientIsNull = client == null;
             try
@@ -177,7 +214,10 @@ namespace REAC_AndroidAPI.Entities
                 if (clientIsNull)
                     client.Dispose();
 
-                return count;
+                if (count == 0)
+                    return 0;
+
+                return client.LastInsertedId();
             }
             catch (DbException e)
             {
@@ -195,22 +235,23 @@ namespace REAC_AndroidAPI.Entities
             return 0;
         }
 
-        public static int InsertNewAdministratorToDB(LocalUser user, byte[] password)
+        public static long InsertNewAdministratorToDB(LocalUser user, byte[] password)
         {
-            int count = 0;
+            long lastInsertedMember = 0;
             try
             {
                 using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
                 {
                     string sql = "INSERT INTO Administrator (member_id, password_hash) VALUES(@member_id, @password_hash);";
 
-                    count = InsertNewMemberToDB(user, client);
-                    if (count > 0)
+                    lastInsertedMember = InsertNewMemberToDB(user, client);
+                    if (lastInsertedMember > 0)
                     {
-                        client.SetParameter("@member_id", client.LastInsertedId());
+                        client.SetParameter("@member_id", lastInsertedMember);
                         client.SetParameter("@password_hash", password);
 
-                        count = client.ExecuteNonQuery(sql);
+                        if (client.ExecuteNonQuery(sql) == 0)
+                            return 0;
                     }
                 }
             }
@@ -218,6 +259,32 @@ namespace REAC_AndroidAPI.Entities
             {
                 if (e.Message.Contains("unique_member_name_ck"))
                     return -2;
+                else if (e.Message.Contains("unique_member_administrator_ck"))
+                    return -3;
+                else
+                    Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.WARN);
+            }
+
+            return lastInsertedMember;
+        }
+
+        public static int InsertNewAdministratorToDBFromExistingUser(LocalUser user, byte[] password)
+        {
+            int count = 0;
+            try
+            {
+                using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
+                {
+                    string sql = "INSERT INTO Administrator (member_id, password_hash) VALUES(@member_id, @password_hash);";
+                    client.SetParameter("@member_id", user.UserID);
+                    client.SetParameter("@password_hash", password);
+                    count = client.ExecuteNonQuery(sql);
+                }
+            }
+            catch (DbException e)
+            {
+                if (e.Message.Contains("Administrator_FKIndex1"))
+                    return -4;
                 else if (e.Message.Contains("unique_member_administrator_ck"))
                     return -3;
                 else

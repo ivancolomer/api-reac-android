@@ -63,7 +63,12 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 Logger.WriteLine("Key = " + kvp.Key + ", Value = " + kvp.Value.Name, Logger.LOG_LEVEL.DEBUG);
             }*/
 
-            return ConnectedUsers.TryGetValue(sessionId, out user) && user.IPAddress == ipAddress;
+            return ConnectedUsers.TryGetValue(sessionId, out user) && user.IsOwner && user.IPAddress == ipAddress;
+        }
+
+        public static bool CheckSignUp(string sessionId, out LocalUser user)
+        {
+            return ConnectedUsers.TryGetValue(sessionId, out user) && !user.IsOwner;
         }
     }
 }

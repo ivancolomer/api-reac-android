@@ -97,13 +97,13 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 //INSERT NEW ADMINISTRATOR ACCOUNT, return random password...
                 byte[] newPasswordBytes = RandomGenerator.GenerateRandomBytes(32);
 
-                int status = LocalUser.InsertNewAdministratorToDB(new LocalUser
+                long status = LocalUser.InsertNewAdministratorToDB(new LocalUser
                 {
                     Name = userName,
                     Role = "ADMIN"
                 }, newPasswordBytes);
 
-                if (status == 1)
+                if (status > 0)
                     return Response.AsJson(new MainResponse<String>(Convert.ToBase64String(newPasswordBytes)));
                 else if(status == -2)
                     return Response.AsJson(new MainResponse<byte>(true, "name_already_in_use"));
@@ -113,8 +113,47 @@ namespace REAC_AndroidAPI.Handlers.Requests
                     return Response.AsJson(new MainResponse<byte>(true, "database_error"));
             });
 
-            //USER
-            Post("/user", async (x, ct) =>
+            //CREATE NEW ADMIN FROM USER
+            Post("/admin", async (x, ct) =>
+            {
+                var bodyJson = JObject.Parse(this.Request.Body.AsString());
+
+                string sessionId = bodyJson["session_id"]?.ToString();
+                string userIdString = bodyJson["user_id"]?.ToString();
+                uint userId = 0;
+
+                if (sessionId == null || userIdString == null || !uint.TryParse(userIdString, out userId))
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if(!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user)) 
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                User member = null;
+
+                int status = LocalUser.GetUserFromDB(userId, out member);
+                if(status == 0 && member.IsOwner)
+                    return Response.AsJson(new MainResponse<byte>(true, "name_already_in_use"));
+                if(status != 0)
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+                LocalUser newUser = new LocalUser()
+                {
+                    IsOwner = false,
+                    UserID = member.UserID,
+                    ProfilePhoto = member.ProfilePhoto,
+                    Name = member.Name,
+                    Role = member.Role,
+                    TimeCreated = Time.GetTime() - UsersManager.MAX_LIVE_TIME + 5 * 60 * 1000, //5min live time
+                };
+
+                UsersManager.AddUser(newUser);
+                return Response.AsJson(new MainResponse<String>(newUser.SessionID));
+            });
+
+            Get("/admin/confirm", async (x, ct) =>
             {
                 string sessionId = this.Request.Query["session_id"];
 
@@ -124,11 +163,59 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 }
 
                 LocalUser user;
-                if(!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user)) 
+                if (!UsersManager.CheckSignUp(sessionId, out user))
                     return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
 
+                byte[] newPasswordBytes = RandomGenerator.GenerateRandomBytes(32);
 
-                return Response.AsJson(new MainResponse<String>("Something"));
+                int status = LocalUser.InsertNewAdministratorToDBFromExistingUser(user, newPasswordBytes);
+
+                if (status == 1)
+                {
+                    user.IsOwner = true;
+                    return Response.AsJson(new MainResponse<String>(Convert.ToBase64String(newPasswordBytes)));
+                }
+                else if (status == -3)
+                    return Response.AsJson(new MainResponse<byte>(true, "member_is_already_an_admin"));
+                else if (status == -4)
+                    return Response.AsJson(new MainResponse<byte>(true, "member_id_not_found"));
+                else
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+            });
+
+            Post("/user", async (x, ct) =>
+            {
+                var bodyJson = JObject.Parse(this.Request.Body.AsString());
+
+                string sessionId = bodyJson["session_id"]?.ToString();
+                string userName = bodyJson["user_name"]?.ToString();
+                string userRole = bodyJson["user_role"]?.ToString();
+
+                if (sessionId == null || userName == null || userRole == null)
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                if (userName.Length < 4)
+                    return Response.AsJson(new MainResponse<byte>(true, "short_username_length"));
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                long userId = LocalUser.InsertNewMemberToDB(new User()
+                {
+                    Name = userName,
+                    IsOwner = false,
+                    Role = userRole
+                });
+
+                if(userId > 0)
+                    return Response.AsJson(new MainResponse<long>(userId));
+                if(userId == -2)
+                    return Response.AsJson(new MainResponse<byte>(true, "name_already_in_use"));
+                return Response.AsJson(new MainResponse<byte>(true, "database_error"));
             });
 
             Get("/user", async (x, ct) =>
@@ -168,25 +255,23 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.FromByteArray(ProfilePhoto.GetProfilePhoto(id), "image/jpeg");
             });
 
-            Get("/user/{name}/images", async (x, ct) =>
+            Get("/user/{id}/images", async (x, ct) =>
             {
                 string sessionId = this.Request.Query["session_id"];
-                string name = x.name.ToString();
+                string userIdString = x.id.ToString();
+                uint userId = 0;
 
-                if (sessionId == null || name == null)
+                if (sessionId == null || userIdString == null || !UInt32.TryParse(userIdString, out userId))
                 {
                     return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
                 }
-
-                if (name.Length < 4)
-                    return Response.AsJson(new MainResponse<byte>(true, "short_username_length"));
 
                 LocalUser user;
                 if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
                     return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
 
                 List<String> images;
-                int status = LocalUser.GetImagesByUserFromDB(name, out images);
+                int status = LocalUser.GetImagesByUserFromDB(userId, out images);
 
                 if (status == -1)
                     return Response.AsJson(new MainResponse<byte>(true, "database_error"));
@@ -234,11 +319,11 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 if (ipAddress == null)
                     return Response.AsJson(new MainResponse<byte>(true, "unable_get_ipaddress"));
 
-                if (Time.GetTime() - user.TimeCreated >= 5 * 60 * 1000)
+                if(Program.VideoClientsManager.AddIPAddress(user.IPAddress) && Time.GetTime() - user.TimeCreated >= 5 * 60 * 1000)
                 {
                     user.TimeCreated += 5 * 60 * 1000;
                 }
-                Program.VideoClientsManager.AddIPAddress(user.IPAddress);
+
                 //tcp/h264://192.168.1.154:8082
                 return new MainResponse<String>("tcp/h264://" + ipAddress + ":" + DotNetEnv.Env.GetInt("TCP_VIDEO_LISTENER_PORT").ToString());
             });
