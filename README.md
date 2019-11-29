@@ -28,15 +28,22 @@ The API will be RESTful and their CRUD operations are defined below:
 ### [User Images List](#user_images_list)
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| GET    | /api/user/:username/images/ | Retrieves a list with all the photo URIs from that user |
+| GET    | /api/user/:userid/images  | Retrieves a list with all the photo URIs from that user |
 
 ### [User Image](#user_image)
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/user/image/:image_id | Get the image |
 
+### [User To Admin](#user_to_admin)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| POST   | /api/admin          | Returns a new session_id that will expire in 5 minutes and is required for registering the new admin |
 
-
+### [User To Admin Confirm](#user_to_admin_confirm)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /api/admin/confirm  | Returns a password of the new created admin (it should be done from the other android device) |
 
 <!-- NOT DONE YET
 
@@ -433,7 +440,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
 * ***URL***
 
-  /api/user/:username/images/
+  /api/user/:userid/images
 
 * **Method:**
 
@@ -443,7 +450,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
   **Required:**
  
-   `:username=[string]` the name of the user. <br />
+   `:userid=[uint]` the name of the user. <br />
    `session_id=[string]` the logged-in session_id.
 
 * **Data Params**
@@ -542,3 +549,90 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
       "content": 0
     }
     ```
+
+<a name="user_to_admin"/>
+
+**User To Admin**
+----
+   It's used for upgrading a member to administator/owner level. Returns a string with the session_id needed for completing the upgrade. This session_id will expire within the next 5 minutes. A way to send the url from Android to Android has to be coded (via QR maybe??). The url sent should be: http://<SERVER_IP>/api/admin/confirm?session_id=<SESSION_ID>
+
+* ***URL***
+
+  /api/admin
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+   None
+
+* **Data Params**
+
+  **Required:**
+
+  `user_id=[uint]` the id of the user to upgrade ownership. <br />
+  `session_id=[string]` the logged-in session_id.
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": false,
+      "errorMessage": "",
+      "content": "F9-20-F6-89-6E-3E-76-4D-A3-20-EB-5F-74-F9-99-50"
+    }
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+    
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "member_is_already_an_admin",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
+    
+    
