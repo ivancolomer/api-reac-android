@@ -135,8 +135,8 @@ namespace REAC_AndroidAPI.Handlers.Requests
 
                 int status = LocalUser.GetUserFromDB(userId, out member);
                 if(status == 0 && member.IsOwner)
-                    return Response.AsJson(new MainResponse<byte>(true, "name_already_in_use"));
-                if(status != 0)
+                    return Response.AsJson(new MainResponse<byte>(true, "member_is_already_an_admin"));
+                if(status == -1)
                     return Response.AsJson(new MainResponse<byte>(true, "database_error"));
 
                 LocalUser newUser = new LocalUser()
