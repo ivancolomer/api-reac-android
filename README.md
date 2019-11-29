@@ -554,7 +554,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
 **User To Admin**
 ----
-   It's used for upgrading a member to administator/owner level. Returns a string with the session_id needed for completing the upgrade. This session_id will expire within the next 5 minutes. A way to send the url from Android to Android has to be coded (via QR maybe??). The url sent should be: http://<SERVER_IP>/api/admin/confirm?session_id=<SESSION_ID>
+   It's used for upgrading a member to administator/owner level. Returns a string on `content` field with the session_id needed for completing the upgrade. This session_id will expire within the next 5 minutes. A way to send the url from Android to Android has to be coded (via QR maybe??). The url sent should be: http://<SERVER_IP>/api/admin/confirm?session_id=<SESSION_ID>
 
 * ***URL***
 
@@ -562,7 +562,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
 * **Method:**
 
-  `GET`
+  `POST`
   
 * **URL Params**
 
@@ -635,4 +635,99 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     }
     ```
     
+<a name="user_to_admin_confirm"/>
+
+**User To Admin Confirm**
+----
+   It's used for upgrading a member to administator/owner level. Returns a string on `content` field with the password_id needed for completing the upgrade. 
+
+* ***URL***
+
+  /api/admin/confirm
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+   **Required:**
+
+  `session_id=[string]` the new one time session_id generated on the previous step.
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": false,
+      "errorMessage": "",
+      "content": "HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA="
+    }
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+    
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "member_is_already_an_admin",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "member_id_not_found",
+      "content": 0
+    }
+    ```
+    
+     OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
     
