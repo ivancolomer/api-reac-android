@@ -22,7 +22,7 @@ curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
 
 sudo apt-get -qq update && sudo apt-get -yq upgrade && sudo apt-get -yq dist-upgrade
 
-sudo apt-get install -yq curl wget git libunwind8 gettext apt-transport-https mariadb-server openssh-server ufw zip
+sudo apt-get install -yq curl wget git libunwind8 gettext apt-transport-https mariadb-server openssh-server ufw zip jq
 sudo apt-get install -yq nodejs
 sudo apt-get install -yq npm 
 sudo apt-get install -yq node-semver
@@ -129,6 +129,8 @@ wait $pid
 
 EOF
 
+sudo chmod +x startup.sh
+
 [ ! -d "$HOME/.ssh" ] && sudo mkdir $HOME/.ssh
 
 sudo tee -a $HOME/.ssh/authorized_keys > /dev/null <<'EOF'
@@ -136,7 +138,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDoP3NfahrHlFy8yiBbM4CHr+CsrdNDLM1SiGU4uGbe
 EOF
 
 wget https://raw.githubusercontent.com/ivancolomer/api-reac-android/master/telegram
-sudo chmod +x telegram.sh
+sudo chmod +x telegram
 
 wget https://raw.githubusercontent.com/ivancolomer/api-reac-android/master/sshd_config
 
