@@ -21,8 +21,11 @@ cd $HOME/onboot
 curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
 
 sudo apt-get -qq update && sudo apt-get -yq upgrade && sudo apt-get -yq dist-upgrade
-sudo apt-get install -yq curl wget git libunwind8 gettext apt-transport-https mariadb-server openssh-server ufw nodejs npm node-semver zip
 
+sudo apt-get install -yq curl wget git libunwind8 gettext apt-transport-https mariadb-server openssh-server ufw zip
+sudo apt-get install -yq nodejs
+sudo apt-get install -yq npm 
+sudo apt-get install -yq node-semver
 sudo npm install -g localtunnel
 
 sudo wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip
@@ -146,7 +149,7 @@ echo "Note: password will be hidden when typing"
 
 echo -n Password: 
 read -s password
-echo
+echo ""
 
 sudo mysql -uroot -p${password} -e "CREATE DATABASE reac /*\!40100 DEFAULT CHARACTER SET utf8 */;"
 sudo mysql -uroot -p${password} -e "CREATE USER reac_user@localhost IDENTIFIED BY 'SemesterProject';"
