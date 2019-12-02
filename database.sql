@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS Member;
 CREATE TABLE Member (
   id INTEGER UNSIGNED  NOT NULL  AUTO_INCREMENT,
   name VARCHAR(30) NOT NULL,
@@ -5,16 +6,10 @@ CREATE TABLE Member (
   role  VARCHAR(30) NOT NULL,
   profile_photo INTEGER UNSIGNED,
 PRIMARY KEY(id),
-CONSTRAINT unique_member_name_ck UNIQUE(name),
-INDEX ProfilePhoto_FK(profile_photo),
-  FOREIGN KEY(profile_photo)
-    REFERENCES Photo(id)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION);
-);
+CONSTRAINT unique_member_name_ck UNIQUE(name));
 
 
-
+DROP TABLE IF EXISTS Photo;
 CREATE TABLE Photo (
   id INTEGER UNSIGNED  NOT NULL  AUTO_INCREMENT,
   member_id INTEGER UNSIGNED  NOT NULL,
@@ -27,8 +22,10 @@ INDEX Photo_FKIndex1(member_id),
       ON DELETE NO ACTION
       ON UPDATE NO ACTION);
 
+ALTER TABLE Member ADD CONSTRAINT ProfilePhoto_FK FOREIGN KEY(profile_photo) REFERENCES Photo(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 
+DROP TABLE IF EXISTS Fingerprint;
 CREATE TABLE Fingerprint (
   id INTEGER UNSIGNED  NOT NULL   AUTO_INCREMENT,
   member_id INTEGER UNSIGNED  NOT NULL,
@@ -43,7 +40,7 @@ INDEX Fingerprint_FKIndex1(member_id),
       ON UPDATE NO ACTION);
 
 
-
+DROP TABLE IF EXISTS Administrator;
 CREATE TABLE Administrator (
   id INTEGER UNSIGNED  NOT NULL   AUTO_INCREMENT,
   member_id INTEGER UNSIGNED  NOT NULL  ,
@@ -58,7 +55,7 @@ INDEX Administrator_FKIndex1(member_id),
       ON UPDATE NO ACTION);
 
 
-
+DROP TABLE IF EXISTS Entry;
 CREATE TABLE Entry (
   id INTEGER UNSIGNED  NOT NULL   AUTO_INCREMENT,
   member_id INTEGER UNSIGNED  NOT NULL,
