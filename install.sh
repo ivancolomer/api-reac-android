@@ -52,6 +52,8 @@ sudo ufw allow 8086
 sudo ufw allow 8087
 sudo ufw allow 8088
 sudo ufw allow 8089
+sudo ufw allow 5800
+sudo ufw allow 5900
 sudo ufw allow ssh
 sudo ufw enable
 sudo ufw status

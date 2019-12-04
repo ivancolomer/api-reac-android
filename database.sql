@@ -8,6 +8,7 @@ CREATE TABLE Member (
 PRIMARY KEY(id),
 CONSTRAINT unique_member_name_ck UNIQUE(name));
 
+ALTER TABLE Member AUTO_INCREMENT=1001;
 
 DROP TABLE IF EXISTS Photo;
 CREATE TABLE Photo (
