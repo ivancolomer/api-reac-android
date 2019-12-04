@@ -211,13 +211,14 @@ namespace REAC_AndroidAPI.Entities
 
                 int count = client.ExecuteNonQuery(sql);
 
+                long lastInsertedId = 0;
+                if (count > 0)
+                    lastInsertedId = client.LastInsertedId();
+
                 if (clientIsNull)
                     client.Dispose();
 
-                if (count == 0)
-                    return 0;
-
-                return client.LastInsertedId();
+                return lastInsertedId;
             }
             catch (DbException e)
             {
