@@ -278,7 +278,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 /*else if(status == -1)
                     return Response.AsJson(new MainResponse<byte>(true, "wrong_username"));*/
 
-                return new MainResponse<List<String>>(images);
+                return Response.AsJson(new MainResponse<List<String>>(images));
             });
 
             //USERS
@@ -325,7 +325,25 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 }
 
                 //tcp/h264://192.168.1.154:8082
-                return new MainResponse<String>("tcp/h264://" + ipAddress + ":" + DotNetEnv.Env.GetInt("TCP_VIDEO_LISTENER_PORT").ToString());
+                return Response.AsJson(new MainResponse<String>("tcp/h264://" + ipAddress + ":" + DotNetEnv.Env.GetInt("TCP_VIDEO_LISTENER_PORT").ToString()));
+            });
+
+            Get("/door", async (x, ct) =>
+            {
+                string sessionId = this.Request.Query["session_id"];
+                if (sessionId == null)
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                if(Program.LockerDevicesManager.SendMessageToAllDevices("open_door"))
+                    return Response.AsJson(new MainResponse<String>(""));
+
+                return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
             });
 
 #pragma warning restore CS1998
