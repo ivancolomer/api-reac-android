@@ -28,13 +28,16 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.StreamVideoClients
                 {
                     byte[] packet = Program.VideoStreamServer.TakePacket();
                     if (packet == null)
-                        await Task.Delay(10);
-
-                    foreach (var session in Clients)
                     {
-                        session.Key.Send(packet);
+                        await Task.Delay(10);
                     }
-
+                    else
+                    {
+                        foreach (var session in Clients)
+                        {
+                            session.Key.Send(packet);
+                        }
+                    }
                 }
             });
         }
