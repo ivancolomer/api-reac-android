@@ -35,6 +35,11 @@ The API will be RESTful and their CRUD operations are defined below:
 | ------ | ------------------- | --- |
 | GET    | /api/user/image/:image_id | Get the image |
 
+### [Create user](#create_user)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| POST   | /api/user           | Registers a new user into the database |
+
 ### [User To Admin](#user_to_admin)
 | Method | Url | Action |
 | ------ | ------------------- | --- |
@@ -45,9 +50,18 @@ The API will be RESTful and their CRUD operations are defined below:
 | ------ | ------------------- | --- |
 | GET    | /api/admin/confirm  | Returns a password of the new created admin (it should be done from the other android device) |
 
+### [Camera streaming](#camera_streaming)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /api/video          | Ask the server to give an url (that will be playable by VLC integrated API in Android) back from the video streaming camera |
+
+### [Open door](#open_door)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /api/door           | Ask the server to open the door (for 3 seconds) |
+
+
 <!-- NOT DONE YET
-
-
 ## User
 | Method | Url | Action |
 | ------ | ------------------- | --- |
@@ -59,21 +73,7 @@ The API will be RESTful and their CRUD operations are defined below:
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/log                | Retrieve all datalog from the house given an $USER_ID and $SESSION_ID of an owner (given a range of dates) |
-
-### Open Door-Lock
-| Method | Url | Action |
-| ------ | ------------------- | --- |
-| GET    | /api/door               | Ask the server to open the door |
-
-### Camera streaming
-| Method | Url | Action |
-| ------ | ------------------- | --- |
-| GET    | /api/camera             | Ask the server to give an url (that will be playable by VLC integrated API in Android) back from the video streaming camera |
-
-
 -->
-
-
 
 
 ## Installation
@@ -550,6 +550,104 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     }
     ```
 
+<a name="create_user"/>
+
+**Create User**
+----
+   It's used for creating a new member. Returns a long integer on `content` field with the user_id needed of the new user.
+
+* ***URL***
+
+  /api/user
+
+* **Method:**
+
+  `POST`
+  
+* **URL Params**
+
+   None
+
+* **Data Params**
+
+  **Required:**
+
+  `user_name=[string]` the name of the new member. <br />
+  `user_role=[string]` the role of the new member. <br />
+  `session_id=[string]` the logged-in session_id.
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": false,
+      "errorMessage": "",
+      "content": 13
+    }
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+    
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "short_username_length",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "name_already_in_use",
+      "content": 0
+    }
+    ```
+  
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
+    
 <a name="user_to_admin"/>
 
 **User To Admin**
@@ -727,6 +825,150 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     {
       "error": true,
       "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
+    
+<a name="camera_streaming"/>
+
+**Camera Streaming**
+----
+   It's used for getting the url needed to get the bytes from the video camera. Returns a string on `content` field with the url needed for watching the video in real-time.
+
+* ***URL***
+
+  /api/video
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+   **Required:**
+
+  `session_id=[string]` the session_id from the current session from an administrator.
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": false,
+      "errorMessage": "",
+      "content": "tcp/h264://192.168.1.1:8082"
+    }
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+    
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "unable_get_ipaddress",
+      "content": 0
+    }
+    ```
+        
+<a name="open_door"/>
+
+**Open door**
+----
+   It's used for opening the lock door for 3 seconds. Returns an empty string on `content`.
+
+* ***URL***
+
+  /api/door
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+   **Required:**
+
+  `session_id=[string]` the session_id from the current session from an administrator.
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": false,
+      "errorMessage": "",
+      "content": ""
+    }
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+    
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "locker_device_not_found",
       "content": 0
     }
     ```
