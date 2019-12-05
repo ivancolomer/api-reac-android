@@ -35,7 +35,7 @@ The API will be RESTful and their CRUD operations are defined below:
 | ------ | ------------------- | --- |
 | GET    | /api/user/image/:image_id | Get the image |
 
-### [Create user](#create_user)
+### [Create User](#create_user)
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | POST   | /api/user           | Registers a new user into the database |
@@ -50,16 +50,30 @@ The API will be RESTful and their CRUD operations are defined below:
 | ------ | ------------------- | --- |
 | GET    | /api/admin/confirm  | Returns a password of the new created admin (it should be done from the other android device) |
 
-### [Camera streaming](#camera_streaming)
+### [Camera Streaming](#camera_streaming)
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/video          | Ask the server to give an url (that will be playable by VLC integrated API in Android) back from the video streaming camera |
 
-### [Open door](#open_door)
+### [Open Door](#open_door)
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/door           | Ask the server to open the door (for 3 seconds) |
 
+### [Get Log](#get_log)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /api/logs            | Retrieve logs from the house (given a range of dates) |
+
+### [Get Notification Log](#get_notification_log)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /api/notifications  | Retrieve new logs for displaying in notifications |
+
+### [Set Notification Log Read](#set_notification_log_read)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| PUT    | /api/notification/:notification_id | Mark the notification as read |
 
 <!-- NOT DONE YET
 ## User
@@ -68,11 +82,6 @@ The API will be RESTful and their CRUD operations are defined below:
 | POST   | /api/user               | Registers a new user into the database (an one-time password will be returned with a limited time of 5min for the member to add it to his mobile device) |
 | PUT    | /api/user/:username     | Updates information about the user (name, profile photo, role, ... |
 | DELETE | /api/user/:username     | Delete the instance of user |
-
-### DataLog
-| Method | Url | Action |
-| ------ | ------------------- | --- |
-| GET    | /api/log                | Retrieve all datalog from the house given an $USER_ID and $SESSION_ID of an owner (given a range of dates) |
 -->
 
 
@@ -903,7 +912,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
         
 <a name="open_door"/>
 
-**Open door**
+**Open Door**
 ----
    It's used for opening the lock door for 3 seconds. Returns an empty string on `content`.
 
@@ -972,4 +981,221 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
       "content": 0
     }
     ```
+
+<a name="get_log"/>
+
+**Get Log**
+----
+   It's used for retrieving logs. Returns a list of `log` objects on `content`.
+
+* ***URL***
+
+  /api/logs
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+   **Required:**
+
+  `session_id=[string]` the session_id from the current session from an administrator.
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    <!--```javascript
+    {
+      "error": false,
+      "errorMessage": "",
+      "content": ""
+    }
+    ```-->
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
     
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
+
+<a name="get_notification_log"/>
+
+**Get Notification Log**
+----
+<!--   It's used for opening the lock door for 3 seconds. Returns an empty string on `content`.
+
+* ***URL***
+
+  /api/door
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+   **Required:**
+
+  `session_id=[string]` the session_id from the current session from an administrator.
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": false,
+      "errorMessage": "",
+      "content": ""
+    }
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+    
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "locker_device_not_found",
+      "content": 0
+    }
+    ```
+-->
+
+<a name="set_notification_log_read"/>
+
+**Set Notification Log Read**
+----
+<!--    It's used for opening the lock door for 3 seconds. Returns an empty string on `content`.
+
+* ***URL***
+
+  /api/door
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+   **Required:**
+
+  `session_id=[string]` the session_id from the current session from an administrator.
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": false,
+      "errorMessage": "",
+      "content": ""
+    }
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+    
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "locker_device_not_found",
+      "content": 0
+    }
+    ```
+-->
