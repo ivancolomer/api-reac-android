@@ -9,7 +9,8 @@ namespace REAC_AndroidAPI.Entities
 {
     public class LocalUser : User
     {
-        private const string URL_TO_IMAGE = "/api/user/image/";
+        private const string URL_TO_IMAGE = "/api/image/";
+        private const string URL_TO_PROFILE_IMAGE = "/api/user/profile/image";
 
         //Stuff for the API in-memory User
         public string SessionID { get; set; }
@@ -23,7 +24,7 @@ namespace REAC_AndroidAPI.Entities
             {
                 using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
                 {
-                    string sql = "SELECT m.id, m.name, m.role, m.profile_photo " +
+                    string sql = "SELECT m.id, m.name, m.role, m.profile_photo_path " +
                         "FROM Administrator AS a " +
                         "INNER JOIN Member AS m ON m.id = a.member_id " +
                         "WHERE m.name = @user_name AND a.password_hash = @password_hash;";
@@ -47,14 +48,14 @@ namespace REAC_AndroidAPI.Entities
             if (!UInt32.TryParse(userRow["id"].ToString(), out userId))
                 return null;
 
-            uint profilePhoto = UInt32.TryParse(userRow["profile_photo"].ToString(), out profilePhoto) ? profilePhoto : 0;
+            //uint profilePhoto = UInt32.TryParse(userRow["profile_photo"].ToString(), out profilePhoto) ? profilePhoto : 0;
 
             LocalUser newUser = new LocalUser();
             newUser.UserID = userId;
             newUser.IsOwner = true;
             newUser.Role = userRow["role"].ToString();
             newUser.Name = userRow["name"].ToString();
-            newUser.ProfilePhoto = URL_TO_IMAGE + profilePhoto;
+            newUser.ProfilePhoto = URL_TO_PROFILE_IMAGE;// + userRow["profile_photo_path"];
             return newUser;
         }
 

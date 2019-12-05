@@ -340,8 +340,18 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
                     return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
 
-                if(Program.LockerDevicesManager.SendMessageToAllDevices("open_door"))
-                    return Response.AsJson(new MainResponse<String>(""));
+                List<string> responses = null;
+                try
+                {
+                    responses = await Program.LockerDevicesManager.SendMessageToAllDevicesBlocking("open_door");
+                }
+                catch(Exception)
+                {
+
+                }
+
+                if(responses != null && responses.Count > 0)
+                    return Response.AsJson(new MainResponse<List<string>>(responses));
 
                 return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
             });

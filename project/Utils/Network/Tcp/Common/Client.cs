@@ -42,14 +42,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
             this.State = ConnectionState.Open;
             this.Address = ((IPEndPoint)socket.RemoteEndPoint).ToString().Split(':')[0];
 
-            //try
-            //{
-            BeginReceive();
-            //}
-            //catch (Exception e)
-            //{
-            //    Output.WriteLine("Error in beginreceive" + e.ToString());
-            //}
+            this.BeginReceive();
         }
 
         /// <summary>
@@ -68,7 +61,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
                 this.State = ConnectionState.Closed;
             }
             try { Socket.Close(); }
-            catch { }
+            catch(Exception) { }
 
             this.OnClosed();
 
@@ -96,11 +89,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
                 // Client disconnected
                 if (length == 0)
                 {
-                    lock (lockSync)
-                    {
-                        this.State = ConnectionState.Closed;
-                    }
-                    this.OnClosed();
+                    this.Close();
                     return;
                 }
 
@@ -118,11 +107,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
             }
             catch (SocketException)
             {
-                lock (lockSync)
-                {
-                    this.State = ConnectionState.Closed;
-                }
-                this.OnClosed();
+                this.Close();
                 //Log.Info("Lost connection from '{0}'.", this.Address);
 
             }
@@ -137,7 +122,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
 
         public void Send(string Message)
         {
-            Send(Encoding.UTF8.GetBytes(Message + (char)0x00));
+            Send(Encoding.UTF8.GetBytes(Message));
         }
 
         public virtual void Send(byte[] Data)
@@ -149,23 +134,19 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
                 {
                     getState = State;
                 }
-                if (getState == ConnectionState.Open && Socket != null)
+                if (getState == ConnectionState.Open && Socket != null && Socket.Connected)
                 {
-                    if (Socket.Connected)
-                    {
-                        Socket.BeginSend(Data, 0, Data.Length, SocketFlags.None, new AsyncCallback(OnDataSent), null);
-                    }
+                    Socket.BeginSend(Data, 0, Data.Length, SocketFlags.None, new AsyncCallback(OnDataSent), null);
                 }
             }
             catch (SocketException)
             {
-                lock (lockSync)
-                {
-                    this.State = ConnectionState.Closed;
-                }
-                this.OnClosed();
+                this.Close();
             }
             catch (ObjectDisposedException)
+            {
+            }
+            catch (Exception)
             {
 
             }
@@ -182,11 +163,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
             }
             catch (SocketException)
             {
-                lock (lockSync)
-                {
-                    this.State = ConnectionState.Closed;
-                }
-                this.OnClosed();
+                this.Close();
             }
             catch (ObjectDisposedException)
             {

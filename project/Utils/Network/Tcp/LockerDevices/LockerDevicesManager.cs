@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
 {
@@ -51,16 +52,35 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             return ValidIpAddress.Contains(ip);
         }
 
-        public bool SendMessageToAllDevices(string message)
+        public async Task<List<string>> SendMessageToAllDevicesBlocking(string message)
         {
-            bool sentAtleastOnce = false;
+            List<string> responses = new List<string>();
+            List<Task<string>> tasks = new List<Task<string>>();
+
             foreach (var session in Clients)
             {
-                Logger.WriteLine("Message sent: " + message, Logger.LOG_LEVEL.DEBUG);
-                session.Key.Send(message);
-                sentAtleastOnce = true;
+                Logger.WriteLineWithHeader("Message sent: " + message, session.Key.Address, Logger.LOG_LEVEL.DEBUG);
+                TaskCompletionSource<string> tcs = new TaskCompletionSource<string>();
+                ((LockerDevice)session.Key).BlockingSend(message, tcs);
+                tasks.Add(tcs.Task);
             }
-            return sentAtleastOnce;
+
+            await Task.WhenAll(tasks);
+
+            foreach(var task in tasks)
+            {
+                try
+                {
+                    if (task.IsCompletedSuccessfully)
+                        responses.Add(task.Result);
+                }
+                catch(Exception)
+                {
+
+                }
+            }
+
+            return responses;
         }
     }
 }

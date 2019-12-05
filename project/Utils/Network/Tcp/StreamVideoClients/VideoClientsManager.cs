@@ -55,7 +55,12 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.StreamVideoClients
         {
             base.StopClient(client);
             if (Clients.Count <= 0)
-                Program.LockerDevicesManager.SendMessageToAllDevices("stop_video_stream");
+            {
+                Task.Run(async() =>
+                {
+                    await Program.LockerDevicesManager.SendMessageToAllDevicesBlocking("stop_video_stream");
+                });
+            }
         }
 
         public override SocketListener CreateSocketListener()
@@ -76,10 +81,46 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.StreamVideoClients
         public override void HandleIncomingConnection(Socket incomingSocket)
         {
             Logger.WriteLine("VideoClient connecting: " + ((IPEndPoint)incomingSocket.RemoteEndPoint).ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
-            if (ValidIpAddress.Contains(((IPEndPoint)incomingSocket.RemoteEndPoint).ToString().Split(':')[0]) && Program.LockerDevicesManager.SendMessageToAllDevices("start_video_stream"))
+
+            if (ValidIpAddress.Contains(((IPEndPoint)incomingSocket.RemoteEndPoint).ToString().Split(':')[0]))
             {
-                Clients.TryAdd(new VideoClient(this, incomingSocket), 0);
-                Logger.WriteLine("VideoClient connected: " + ((IPEndPoint)incomingSocket.RemoteEndPoint).ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
+                Task.Run(async () =>
+                {
+                    List<string> responses = null;
+                    try
+                    {
+                        responses = await Program.LockerDevicesManager.SendMessageToAllDevicesBlocking("start_video_stream");
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    if (responses != null && responses.Count > 0)
+                    {
+                        Clients.TryAdd(new VideoClient(this, incomingSocket), 0);
+                        Logger.WriteLine("VideoClient connected: " + ((IPEndPoint)incomingSocket.RemoteEndPoint).ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            incomingSocket.Close();
+                        }
+                        catch (Exception)
+                        {
+                        }
+                        try
+                        {
+                            incomingSocket.Dispose();
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+
+                });
             }
             else
             {
