@@ -1,5 +1,7 @@
 ﻿using REAC_AndroidAPI;
+using REAC_AndroidAPI.Utils;
 using REAC_AndroidAPI.Utils.Network;
+using REAC_AndroidAPI.Utils.Network.Tcp.StreamVideoClients;
 using REAC_AndroidAPI.Utils.Output;
 using System;
 using System.Collections.Concurrent;
@@ -16,7 +18,9 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
         public bool stopListeningTo;
         private UdpClient udpClient;
 
-        private BlockingCollection<byte[]> packetCollection = new BlockingCollection<byte[]>(512);
+        private long lastPacketDate = 0;
+
+        private BlockingCollection<byte[]> packetCollection = new BlockingCollection<byte[]>(2048);
 
         public VideoStreamServer()
         {
@@ -36,11 +40,20 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
                 IPEndPoint from = new IPEndPoint(0, 0);
                 byte[] receiveBytes = udpClient.EndReceive(ar, ref from);
 
-                if(Program.LockerDevicesManager.IsIPAddressValid(from.ToString().Split(':')[0]))
+                if(Program.LockerDevicesManager != null && Program.LockerDevicesManager.IsIPAddressValid(from.ToString().Split(':')[0]))
                 {
                     try
                     {
-                        packetCollection.TryAdd(receiveBytes);
+                        long dateNow = Time.GetTime();
+                        if(lastPacketDate != 0)
+                        {
+                            long difference = dateNow - lastPacketDate;
+                            //Logger.WriteLineWithHeader(difference.ToString(), "video_bytes", Logger.LOG_LEVEL.DEBUG);
+                        }
+                        lastPacketDate = dateNow;
+
+                        if(Program.VideoClientsManager != null && Program.VideoClientsManager.Clients.Count > 0)
+                            packetCollection.TryAdd(receiveBytes);
                     }
                     catch (Exception)
                     {
