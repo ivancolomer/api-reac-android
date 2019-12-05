@@ -4,7 +4,7 @@ CREATE TABLE Member (
   name VARCHAR(30) NOT NULL,
   date_added  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   role  VARCHAR(30) NOT NULL,
-  profile_photo INTEGER UNSIGNED,
+  profile_photo_path VARCHAR(100) NOT NULL,
   
   PRIMARY KEY(id),
   CONSTRAINT unique_member_name_ck UNIQUE(name)
@@ -22,7 +22,10 @@ CREATE TABLE Photo (
   INDEX Photo_FKIndex1(member_id),
   FOREIGN KEY(member_id) REFERENCES Member(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+
+/*
 ALTER TABLE Member ADD CONSTRAINT ProfilePhoto_FK FOREIGN KEY(profile_photo) REFERENCES Photo(id) ON DELETE NO ACTION ON UPDATE NO ACTION;
+*/
 
 DROP TABLE IF EXISTS Fingerprint;
 CREATE TABLE Fingerprint (
