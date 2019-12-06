@@ -10,7 +10,8 @@ namespace REAC_AndroidAPI.Entities
     public class LocalUser : User
     {
         private const string URL_TO_IMAGE = "/api/image/";
-        private const string URL_TO_PROFILE_IMAGE = "/api/user/profile/image";
+        private const string URL_TO_PROFILE_IMAGE_BEFORE = "/api/user/";
+        private const string URL_TO_PROFILE_IMAGE_AFTER = "/profile/image";
 
         //Stuff for the API in-memory User
         public string SessionID { get; set; }
@@ -24,7 +25,7 @@ namespace REAC_AndroidAPI.Entities
             {
                 using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
                 {
-                    string sql = "SELECT m.id, m.name, m.role, m.profile_photo_path " +
+                    string sql = "SELECT m.id, m.name, m.role " +
                         "FROM Administrator AS a " +
                         "INNER JOIN Member AS m ON m.id = a.member_id " +
                         "WHERE m.name = @user_name AND a.password_hash = @password_hash;";
@@ -55,7 +56,7 @@ namespace REAC_AndroidAPI.Entities
             newUser.IsOwner = true;
             newUser.Role = userRow["role"].ToString();
             newUser.Name = userRow["name"].ToString();
-            newUser.ProfilePhoto = URL_TO_PROFILE_IMAGE;// + userRow["profile_photo_path"];
+            newUser.ProfilePhoto = URL_TO_PROFILE_IMAGE_BEFORE + userId.ToString() + URL_TO_PROFILE_IMAGE_AFTER;// + userRow["profile_photo_path"];
             return newUser;
         }
 
@@ -127,7 +128,7 @@ namespace REAC_AndroidAPI.Entities
                 using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
                 {
                     client.SetParameter("@user_id", userId);
-                    row = client.ExecuteQueryRow("SELECT m.id, m.name, m.role, m.profile_photo, a.id AS admin_id " +
+                    row = client.ExecuteQueryRow("SELECT m.id, m.name, m.role, a.id AS admin_id " +
                         "FROM Member AS m " +
                         "LEFT JOIN Administrator AS a ON m.id = a.member_id " +
                         "WHERE m.id = @user_id;");
@@ -141,7 +142,7 @@ namespace REAC_AndroidAPI.Entities
             if (row == null)
                 return -1;
 
-            uint profilePhoto = UInt32.TryParse(row["profile_photo"].ToString(), out profilePhoto) ? profilePhoto : 0;
+            //uint profilePhoto = UInt32.TryParse(row["profile_photo"].ToString(), out profilePhoto) ? profilePhoto : 0;
             uint adminID = UInt32.TryParse(row["admin_id"].ToString(), out adminID) ? adminID : 0;
 
             User newUser = new User();
@@ -149,7 +150,7 @@ namespace REAC_AndroidAPI.Entities
             user.Role = row["role"].ToString();
             user.IsOwner = adminID > 0;
             user.Name = row["name"].ToString();
-            user.ProfilePhoto = URL_TO_IMAGE + profilePhoto;
+            user.ProfilePhoto = URL_TO_PROFILE_IMAGE_BEFORE + userId.ToString() + URL_TO_PROFILE_IMAGE_AFTER;
 
             return 0;
         }
@@ -163,7 +164,7 @@ namespace REAC_AndroidAPI.Entities
             {
                 using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
                 {
-                    table = client.ExecuteQueryTable("SELECT m.id, m.name, m.role, m.profile_photo, a.id AS admin_id " +
+                    table = client.ExecuteQueryTable("SELECT m.id, m.name, m.role, a.id AS admin_id " +
                         "FROM Member AS m " +
                         "LEFT JOIN Administrator AS a ON m.id = a.member_id;");
                 }
@@ -182,7 +183,7 @@ namespace REAC_AndroidAPI.Entities
                 if (!UInt32.TryParse(row["id"].ToString(), out userId))
                     continue;
 
-                uint profilePhoto = UInt32.TryParse(row["profile_photo"].ToString(), out profilePhoto) ? profilePhoto : 0;
+                //uint profilePhoto = UInt32.TryParse(row["profile_photo"].ToString(), out profilePhoto) ? profilePhoto : 0;
                 uint adminID = UInt32.TryParse(row["admin_id"].ToString(), out adminID) ? adminID : 0;
 
                 User newUser = new User();
@@ -190,7 +191,7 @@ namespace REAC_AndroidAPI.Entities
                 newUser.Role = row["role"].ToString();
                 newUser.IsOwner = adminID > 0;
                 newUser.Name = row["name"].ToString();
-                newUser.ProfilePhoto = URL_TO_IMAGE + profilePhoto;
+                newUser.ProfilePhoto = URL_TO_PROFILE_IMAGE_BEFORE + userId.ToString() + URL_TO_PROFILE_IMAGE_AFTER;
 
                 users.Add(newUser);
             }

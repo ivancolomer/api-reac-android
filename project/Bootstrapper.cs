@@ -7,6 +7,8 @@ using Nancy.Bootstrapper;
 using REAC_AndroidAPI.Handlers.Errors;
 using Nancy.Diagnostics;
 using REAC_AndroidAPI.Utils.Output;
+using Nancy.Extensions;
+using System.IO;
 
 namespace REAC_AndroidAPI
 {
@@ -32,6 +34,28 @@ namespace REAC_AndroidAPI
         {
             //environment.Diagnostics(enabled: true, password: "password");
             environment.Tracing(enabled: true, displayErrorTraces: true);
+        }
+
+        protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
+        {
+            base.ApplicationStartup(container, pipelines);
+
+            pipelines.BeforeRequest.AddItemToEndOfPipeline((ctx) => {
+                Logger.WriteLineWithHeader(ctx.Request.Url.ToString(), "BeforeRequest - " + ctx.Request.UserHostAddress.ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
+                //ctx.Request.Body.Seek(0, SeekOrigin.Begin);
+                return null;
+            });
+
+            pipelines.AfterRequest.AddItemToEndOfPipeline((ctx) => {
+                var stream = new MemoryStream();
+                ctx.Response.Contents.Invoke(stream);
+
+                stream.Position = 0;
+                using (var reader = new StreamReader(stream))
+                {
+                    Logger.WriteLineWithHeader(reader.ReadToEnd(), "AfterRequest - " + ctx.Request.UserHostAddress.ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG); 
+                }
+            });
         }
     }
 }

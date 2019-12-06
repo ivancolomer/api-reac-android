@@ -7,7 +7,7 @@ namespace REAC_AndroidAPI.Entities
 {
     public class Log
     {
-        
-        
+        public DateTime DateTime { get; set; } //TimeZone.CurrentTimeZone.ToUniversalTime()
+
     }
 }

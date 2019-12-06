@@ -44,15 +44,22 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
                 {
                     try
                     {
-                        long dateNow = Time.GetTime();
-                        if(lastPacketDate != 0)
-                        {
-                            long difference = dateNow - lastPacketDate;
-                            //Logger.WriteLineWithHeader(difference.ToString(), "video_bytes", Logger.LOG_LEVEL.DEBUG);
-                        }
-                        lastPacketDate = dateNow;
+                        //long dateNow = Time.GetTime();
+                        //if(lastPacketDate != 0)
+                        //{
+                        //    long difference = dateNow - lastPacketDate;
+                        //    Logger.WriteLine("video_bytes", Logger.LOG_LEVEL.DEBUG);
+                        //}
+                        //lastPacketDate = dateNow;
 
-                        if(Program.VideoClientsManager != null && Program.VideoClientsManager.Clients.Count > 0)
+                        /*long dateNow = Time.GetTime();
+                        if (dateNow - lastPacketDate > 30000)
+                        {
+                            Logger.WriteLine("video_bytes", Logger.LOG_LEVEL.DEBUG);
+                            lastPacketDate = dateNow;
+                        }*/
+                        
+                        if (Program.VideoClientsManager != null && Program.VideoClientsManager.Clients.Count > 0)
                             packetCollection.TryAdd(receiveBytes);
                     }
                     catch (Exception)

@@ -56,10 +56,11 @@ namespace REAC_AndroidAPI
             SqlDatabaseManager.Initialize();
 
             LockerDevicesManager = new LockerDevicesManager();
+            VideoStreamServer = new VideoStreamServer();
             VideoClientsManager = new VideoClientsManager();
             Handlers.Requests.UsersManager.Initialize();
 
-            VideoStreamServer = new VideoStreamServer();
+            
             BroadcastEmitter = new BroadcastEmitter();
             NancyHost = new NancyHost(new HostConfiguration { RewriteLocalhost = true }, new Uri("http://localhost:" + DotNetEnv.Env.GetInt("WEB_SERVER_PORT") + "/")); 
             try

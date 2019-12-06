@@ -59,7 +59,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
 
             foreach (var session in Clients)
             {
-                Logger.WriteLineWithHeader("Message sent: " + message, session.Key.Address, Logger.LOG_LEVEL.DEBUG);
+                //Logger.WriteLineWithHeader("Message sent: " + message, session.Key.Address, Logger.LOG_LEVEL.DEBUG);
                 TaskCompletionSource<string> tcs = new TaskCompletionSource<string>();
                 ((LockerDevice)session.Key).BlockingSend(message, tcs);
                 tasks.Add(tcs.Task);

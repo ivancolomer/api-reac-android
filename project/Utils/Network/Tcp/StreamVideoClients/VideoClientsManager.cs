@@ -26,17 +26,27 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.StreamVideoClients
             {
                 while(true)
                 {
-                    byte[] packet = Program.VideoStreamServer.TakePacket();
-                    if (packet == null)
+                    try
                     {
-                        await Task.Delay(10);
-                    }
-                    else
-                    {
-                        foreach (var session in Clients)
+
+
+                        byte[] packet = Program.VideoStreamServer.TakePacket();
+                        if (packet == null)
                         {
-                            session.Key.Send(packet);
+                            await Task.Delay(10);
                         }
+                        else
+                        {
+                            foreach (var session in Clients)
+                            {
+                                session.Key.Send(packet);
+                            }
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.ERROR);
+                        await Task.Delay(10);
                     }
                 }
             });
@@ -80,7 +90,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.StreamVideoClients
 
         public override void HandleIncomingConnection(Socket incomingSocket)
         {
-            Logger.WriteLine("VideoClient connecting: " + ((IPEndPoint)incomingSocket.RemoteEndPoint).ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
+            //Logger.WriteLine("VideoClient connecting: " + ((IPEndPoint)incomingSocket.RemoteEndPoint).ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
 
             if (ValidIpAddress.Contains(((IPEndPoint)incomingSocket.RemoteEndPoint).ToString().Split(':')[0]))
             {
@@ -91,15 +101,15 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.StreamVideoClients
                     {
                         responses = await Program.LockerDevicesManager.SendMessageToAllDevicesBlocking("start_video_stream");
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-
+                        Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.ERROR);
                     }
 
                     if (responses != null && responses.Count > 0)
                     {
                         Clients.TryAdd(new VideoClient(this, incomingSocket), 0);
-                        Logger.WriteLine("VideoClient connected: " + ((IPEndPoint)incomingSocket.RemoteEndPoint).ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
+                        Logger.WriteLineWithHeader("OPEN CONNECTION", "VIDEO - " + ((IPEndPoint)incomingSocket.RemoteEndPoint).ToString().Split(':')[0], Logger.LOG_LEVEL.WARN);
                     }
                     else
                     {
