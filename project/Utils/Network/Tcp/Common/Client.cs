@@ -10,7 +10,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
 {
     public abstract class Client : IDisposable
     {
-        private const int BUFFER_LENGTH = 4096;
+        private const int BUFFER_LENGTH = 1024;
 
         private byte[] Buffer;
         private Socket Socket;

@@ -52,6 +52,36 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             return ValidIpAddress.Contains(ip);
         }
 
+        public async Task<List<byte[]>> GetLiveImageFromLockingDevices()
+        {
+            List<byte[]> responses = new List<byte[]>();
+            Dictionary<LockerDevice, Task<string>> tasks = new Dictionary<LockerDevice, Task<string>>();
+
+            foreach (var session in Clients)
+            {
+                TaskCompletionSource<string> tcs = new TaskCompletionSource<string>();
+                ((LockerDevice)session.Key).BlockingSend("get_live_image", tcs);
+                tasks.Add((LockerDevice)session.Key, tcs.Task);
+            }
+
+            await Task.WhenAll(tasks.Values);
+
+            foreach (var task in tasks)
+            {
+                try
+                {
+                    if (task.Value.IsCompletedSuccessfully && task.Value.Result != null && task.Value.Result == "image_sent")
+                        responses.Add(task.Key.LastImageSent);
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+
+            return responses;
+        }
+
         public async Task<List<string>> SendMessageToAllDevicesBlocking(string message)
         {
             List<string> responses = new List<string>();

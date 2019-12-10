@@ -325,7 +325,22 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 }
 
                 //tcp/h264://192.168.1.154:8082
-                return Response.AsJson(new MainResponse<String>("tcp/h264://" + ipAddress + ":" + DotNetEnv.Env.GetInt("TCP_VIDEO_LISTENER_PORT").ToString()));
+                //return Response.AsJson(new MainResponse<String>("tcp/h264://" + ipAddress + ":" + DotNetEnv.Env.GetInt("TCP_VIDEO_LISTENER_PORT").ToString()));
+                
+                List<byte[]> responses = null;
+                try
+                {
+                    responses = await Program.LockerDevicesManager.GetLiveImageFromLockingDevices();
+                }
+                catch (Exception)
+                {
+
+                }
+
+                if (responses != null && responses.Count > 0)
+                    return Response.FromByteArray(responses[0], "image/jpeg");
+
+                return Response.AsJson(new MainResponse<byte>(true, "no_live_image_available"));
             });
 
             Get("/door", async (x, ct) =>

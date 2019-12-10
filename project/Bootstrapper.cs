@@ -47,14 +47,18 @@ namespace REAC_AndroidAPI
             });
 
             pipelines.AfterRequest.AddItemToEndOfPipeline((ctx) => {
-                var stream = new MemoryStream();
-                ctx.Response.Contents.Invoke(stream);
-
-                stream.Position = 0;
-                using (var reader = new StreamReader(stream))
+                try
                 {
-                    Logger.WriteLineWithHeader(reader.ReadToEnd(), "AfterRequest - " + ctx.Request.UserHostAddress.ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG); 
+                    var stream = new MemoryStream();
+                    ctx.Response.Contents.Invoke(stream);
+
+                    stream.Position = 0;
+                    using (var reader = new StreamReader(stream))
+                    {
+                        Logger.WriteLineWithHeader(reader.ReadToEnd(), "AfterRequest - " + ctx.Request.UserHostAddress.ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
+                    }
                 }
+                catch (Exception) { }
             });
         }
     }
