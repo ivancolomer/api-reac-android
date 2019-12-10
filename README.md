@@ -53,7 +53,7 @@ The API will be RESTful and their CRUD operations are defined below:
 ### [Camera Streaming](#camera_streaming)
 | Method | Url | Action |
 | ------ | ------------------- | --- |
-| GET    | /api/video          | Ask the server to give an url (that will be playable by VLC integrated API in Android) back from the video streaming camera |
+| GET    | /api/video          | Ask the server to give the current snapshot/image back from the video streaming camera |
 
 ### [Open Door](#open_door)
 | Method | Url | Action |
@@ -842,7 +842,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
 **Camera Streaming**
 ----
-   It's used for getting the url needed to get the bytes from the video camera. Returns a string on `content` field with the url needed for watching the video in real-time.
+   It's used for getting the image in `jpeg` format from the video camera.
 
 * ***URL***
 
@@ -866,12 +866,8 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
   * **Code:** 200 <br />
     **Content:** 
-    ```javascript
-    {
-      "error": false,
-      "errorMessage": "",
-      "content": "tcp/h264://192.168.1.1:8082"
-    }
+    ```
+    Content-Type: "image/jpeg"
     ```
  
 * **Error Response:**
@@ -906,6 +902,18 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     {
       "error": true,
       "errorMessage": "unable_get_ipaddress",
+      "content": 0
+    }
+    ```
+    
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "no_live_image_available",
       "content": 0
     }
     ```
@@ -1000,7 +1008,9 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
    **Required:**
 
-  `session_id=[string]` the session_id from the current session from an administrator.
+  `session_id=[string]` the session_id from the current session from an administrator. <br />
+  `begin_date=[date:string]` the date since the logs should be displayed. Format: `dd/MM/yyyy-HH:mm:ss` (in UTC) ex: `31/05/2019-14:03:43`<br />
+  `end_date=[date:string]` the date until the logs should be displayed. Format: `dd/MM/yyyy-HH:mm:ss` (in UTC) ex: `31/05/2019-14:03:43`
 
 * **Data Params**
 
