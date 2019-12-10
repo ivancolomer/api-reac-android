@@ -1093,11 +1093,11 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
 **Get Notification Log**
 ----
-<!--   It's used for opening the lock door for 3 seconds. Returns an empty string on `content`.
+   It's used for pulling new notifications. Returns a a list of `log` objects on `content`.
 
 * ***URL***
 
-  /api/door
+  /api/notifications
 
 * **Method:**
 
@@ -1119,9 +1119,34 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     **Content:** 
     ```javascript
     {
-      "error": false,
-      "errorMessage": "",
-      "content": ""
+        "error": false,
+        "errorMessage": "",
+        "content": [
+            {
+                "logID": 1,
+                "userID": 1,
+                "name": "ivan",
+                "profilePhoto": "/api/user/image/0",
+                "date": "10/12/2019 11:47:13",
+                "info": "user_to_owner"
+            },
+            {
+                "logID": 2,
+                "userID": 1,
+                "name": "ivan",
+                "profilePhoto": "/api/user/image/0",
+                "date": "10/12/2019 12:35:23",
+                "info": "button_open_door"
+            },
+            {
+                "logID": 3,
+                "userID": 1,
+                "name": "ivan",
+                "profilePhoto": "/api/user/image/0",
+                "date": "10/12/2019 12:36:17",
+                "info": "open_door"
+            }
+        ]
     }
     ```
  
@@ -1156,31 +1181,32 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     ```javascript
     {
       "error": true,
-      "errorMessage": "locker_device_not_found",
+      "errorMessage": "database_error",
       "content": 0
     }
     ```
--->
+
 
 <a name="set_notification_log_read"/>
 
 **Set Notification Log Read**
 ----
-<!--    It's used for opening the lock door for 3 seconds. Returns an empty string on `content`.
+    It's used for marking the notification as read. Returns an empty string on `content`.
 
 * ***URL***
 
-  /api/door
+  /api/notification/:notification_id
 
 * **Method:**
 
-  `GET`
+  `PUT`
   
 * **URL Params**
 
    **Required:**
 
   `session_id=[string]` the session_id from the current session from an administrator.
+  `notification_id=[int]` the log id of the notification you want to mark it as read.
 
 * **Data Params**
 
@@ -1229,8 +1255,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     ```javascript
     {
       "error": true,
-      "errorMessage": "locker_device_not_found",
+      "errorMessage": "database_error",
       "content": 0
     }
     ```
--->
