@@ -1010,13 +1010,38 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
   * **Code:** 200 <br />
     **Content:** 
-    <!--```javascript
+    ```javascript
     {
-      "error": false,
-      "errorMessage": "",
-      "content": ""
+        "error": false,
+        "errorMessage": "",
+        "content": [
+            {
+                "logID": 1,
+                "userID": 1,
+                "name": "ivan",
+                "profilePhoto": "/api/user/image/0",
+                "date": "10/12/2019 11:47:13",
+                "info": "user_to_owner"
+            },
+            {
+                "logID": 2,
+                "userID": 1,
+                "name": "ivan",
+                "profilePhoto": "/api/user/image/0",
+                "date": "10/12/2019 12:35:23",
+                "info": "button_open_door"
+            },
+            {
+                "logID": 3,
+                "userID": 1,
+                "name": "ivan",
+                "profilePhoto": "/api/user/image/0",
+                "date": "10/12/2019 12:36:17",
+                "info": "open_door"
+            }
+        ]
     }
-    ```-->
+    ```
  
 * **Error Response:**
 
