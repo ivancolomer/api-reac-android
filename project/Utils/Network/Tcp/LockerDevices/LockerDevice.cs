@@ -24,6 +24,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
 
         private long imagePacketId = -1;
         private int imageSize = 0;
+        private int imageRead = 0;
         private MemoryStream image = null;
 
         public byte[] LastImageSent = null;
@@ -43,44 +44,74 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             Dispose();
         }
 
-        public override void HandlePacket(byte[] body)
+        public override void HandlePacket(byte[] body, int length)
         {
+            int start = 0;
             LastTimeReaden = Time.GetTime();
 
             if (imagePacketId != -1)
             {
-                image.Write(body, 0, body.Length);
+                int toRead = Math.Min(length, imageSize - imageRead);
+                image.Write(body, 0, toRead);
+                imageRead += toRead;
 
-                if(image.Length < imageSize)
+                
+                if (imageRead < imageSize)
                 {
                     return;
                 }
 
+                Logger.WriteLineWithHeader(imageRead.ToString(), "ON_IMAGE_RECEIVED", Logger.LOG_LEVEL.DEBUG);
                 LastImageSent = image.ToArray();
 
                 SendResponseToMessage(imagePacketId, "image_sent");
-
+                
                 imagePacketId = -1;
+                imageRead = 0;
                 image = null;
+
+                if(length - toRead == 0)
+                    return;
+                start = toRead;
             }
 
-            string stringPacket = Encoding.UTF8.GetString(body);
-            //Used for talking with other devices from the same local network...
-            int separatorIndex = stringPacket.IndexOf('|');
-            if (separatorIndex == -1)
-                return;
+            string stringPacket = Encoding.UTF8.GetString(body, start, length - start);
+            string totalHeader = "";
+            //Logger.WriteLineWithHeader(stringPacket, "NEW_MESSAGE", Logger.LOG_LEVEL.DEBUG);
 
-            long packetId = long.Parse(stringPacket.Substring(0, separatorIndex));
-            string message = stringPacket.Substring(separatorIndex + 1);
+            string message;
+            string value = getStringFirstValue(stringPacket, out message);
+            if (value == null)
+                return;
+            totalHeader += value + "|";
+
+            long packetId = long.Parse(value);
 
             if (message.StartsWith("send_image|"))
             {
-                Logger.WriteLineWithHeader(message, "image", Logger.LOG_LEVEL.DEBUG);
-                string[] messages = message.Split('|');
-                imageSize = int.Parse(messages[1]);
+                value = getStringFirstValue(message, out message);
+                if (value == null)
+                    return;
+                totalHeader += value + "|";
+
+                value = getStringFirstValue(message, out message);
+                if (value == null)
+                    return;
+                totalHeader += value + "|";
+
+                imageSize = int.Parse(value);
                 if (imageSize > 0)
                 {
+                    Logger.WriteLineWithHeader(totalHeader, "header", Logger.LOG_LEVEL.DEBUG);
+
                     image = new MemoryStream();
+                    byte[] headerInBytes = Encoding.UTF8.GetBytes(totalHeader);
+                    if (length - start > headerInBytes.Length)
+                    {
+                        image.Write(body, start + headerInBytes.Length, length - start - headerInBytes.Length);
+                        imageRead += length - headerInBytes.Length - start;
+                        Logger.WriteLineWithHeader(imageRead.ToString(), "more length", Logger.LOG_LEVEL.DEBUG);
+                    }
                     imagePacketId = packetId;
 
                     return;
@@ -121,7 +152,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             if (tcs == null)
                 return;
 
-            var ct = new CancellationTokenSource(5000); //WAIT 5sec for response max
+            var ct = new CancellationTokenSource(2000); //WAIT 2sec for response max
             ct.Token.Register(() =>
             {
                 try
@@ -151,6 +182,19 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
 
                 }
             }
+        }
+
+        public string getStringFirstValue(string message, out string substring)
+        {
+            int separatorIndex = message.IndexOf('|');
+            if (separatorIndex == -1)
+            {
+                substring = null;
+                return null;
+            }
+
+            substring = message.Substring(separatorIndex + 1);
+            return message.Substring(0, separatorIndex);
         }
     }
 }

@@ -46,7 +46,7 @@ namespace REAC_AndroidAPI
                 return null;
             });
 
-            pipelines.AfterRequest.AddItemToEndOfPipeline((ctx) => {
+            /*pipelines.AfterRequest.AddItemToEndOfPipeline((ctx) => {
                 try
                 {
                     var stream = new MemoryStream();
@@ -59,7 +59,7 @@ namespace REAC_AndroidAPI
                     }
                 }
                 catch (Exception) { }
-            });
+            });*/
         }
     }
 }

@@ -4,16 +4,18 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
 {
     public abstract class Client : IDisposable
     {
-        private const int BUFFER_LENGTH = 1024;
+        private const int BUFFER_LENGTH = 4096;
 
         private byte[] Buffer;
         private Socket Socket;
+        private ManualResetEvent sendDone;
 
         private readonly object CleanUpLock;
         private bool CleanedUp;
@@ -96,7 +98,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
                 // Handle
                 try
                 {
-                    this.HandlePacket(Buffer);
+                    this.HandlePacket(Buffer, length);
                 }
                 catch (Exception)
                 {
@@ -137,6 +139,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
                 if (getState == ConnectionState.Open && Socket != null && Socket.Connected)
                 {
                     Socket.BeginSend(Data, 0, Data.Length, SocketFlags.None, new AsyncCallback(OnDataSent), null);
+                    sendDone.WaitOne();
                 }
             }
             catch (SocketException)
@@ -159,6 +162,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
                 if (Socket != null)
                 {
                     Socket.EndSend(Result);
+                    sendDone.Set();
                 }
             }
             catch (SocketException)
@@ -194,7 +198,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
         /// <summary>
         /// Called for every packet that is read from the network stream.
         /// </summary>
-        public abstract void HandlePacket(byte[] Body);
+        public abstract void HandlePacket(byte[] Body, int length);
 
         /// <summary>
         /// Called when Session is Disposed.

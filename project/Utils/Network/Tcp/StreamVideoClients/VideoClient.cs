@@ -28,7 +28,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.StreamVideoClients
             Dispose();
         }
 
-        public override void HandlePacket(byte[] body)
+        public override void HandlePacket(byte[] body, int length)
         {
             string stringPacket = Encoding.UTF8.GetString(body);
             //Used for talking with other devices from the same local network...
