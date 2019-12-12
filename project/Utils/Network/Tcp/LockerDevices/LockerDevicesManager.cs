@@ -52,15 +52,25 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             return ValidIpAddress.Contains(ip);
         }
 
-        public async Task<List<byte[]>> GetLiveImageFromLockingDevices()
+        public Task<List<byte[]>> GetLiveImageFromLockingDevices()
+        {
+            return GetImageFromLockingDevices("get_live_image");
+        }
+
+        public Task<List<byte[]>> GetImageUserRecognition(uint userId, int photoId)
+        {
+            return GetImageFromLockingDevices("get_photo_user|" + userId + "|" + photoId + "|");
+        }
+
+        private async Task<List<byte[]>> GetImageFromLockingDevices(string message)
         {
             List<byte[]> responses = new List<byte[]>();
-            Dictionary<LockerDevice, Task<string>> tasks = new Dictionary<LockerDevice, Task<string>>();
+            Dictionary<LockerDevice, Task<object>> tasks = new Dictionary<LockerDevice, Task<object>>();
 
             foreach (var session in Clients)
             {
-                TaskCompletionSource<string> tcs = new TaskCompletionSource<string>();
-                ((LockerDevice)session.Key).BlockingSend("get_live_image", tcs);
+                TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+                ((LockerDevice)session.Key).BlockingSend(message, tcs);
                 tasks.Add((LockerDevice)session.Key, tcs.Task);
             }
 
@@ -70,8 +80,8 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             {
                 try
                 {
-                    if (task.Value.IsCompletedSuccessfully && task.Value.Result != null && task.Value.Result == "image_sent")
-                        responses.Add(task.Key.LastImageSent);
+                    if (task.Value.IsCompletedSuccessfully && task.Value.Result != null && task.Value.Result is byte[])
+                        responses.Add((byte[])task.Value.Result);
                 }
                 catch (Exception)
                 {
@@ -85,12 +95,12 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
         public async Task<List<string>> SendMessageToAllDevicesBlocking(string message)
         {
             List<string> responses = new List<string>();
-            List<Task<string>> tasks = new List<Task<string>>();
+            List<Task<object>> tasks = new List<Task<object>>();
 
             foreach (var session in Clients)
             {
                 //Logger.WriteLineWithHeader("Message sent: " + message, session.Key.Address, Logger.LOG_LEVEL.DEBUG);
-                TaskCompletionSource<string> tcs = new TaskCompletionSource<string>();
+                TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
                 ((LockerDevice)session.Key).BlockingSend(message, tcs);
                 tasks.Add(tcs.Task);
             }
@@ -101,8 +111,8 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             {
                 try
                 {
-                    if (task.IsCompletedSuccessfully)
-                        responses.Add(task.Result);
+                    if (task.IsCompletedSuccessfully && task.Result != null && task.Result is string)
+                        responses.Add((string)task.Result);
                 }
                 catch(Exception)
                 {

@@ -9,6 +9,8 @@ using REAC_AndroidAPI.Utils.Network;
 using System.Collections.Generic;
 using REAC_AndroidAPI.Utils.Responses;
 using REAC_AndroidAPI.Utils.Storage;
+using System.Linq;
+using System.IO;
 
 namespace REAC_AndroidAPI.Handlers.Requests
 {
@@ -24,6 +26,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.AsJson(new MainResponse<String>("Welcome to AndroidAPI"));
             });
 
+            //IPADDRESS
             Get("/ipaddress", async (x, ct) =>
             {
                 string ipAddress = NetworkUtils.GetExternalIPAddress();
@@ -67,7 +70,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.AsJson(new MainResponse<String>(user.SessionID));
             });
 
-            //REGISTER FOR FIRST TIME
+            //REGISTER
             Post("/register", async (x, ct) =>
             {
                 var bodyJson = JObject.Parse(this.Request.Body.AsString());
@@ -113,7 +116,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                     return Response.AsJson(new MainResponse<byte>(true, "database_error"));
             });
 
-            //CREATE NEW ADMIN FROM USER
+            //ADMIN
             Post("/admin", async (x, ct) =>
             {
                 var bodyJson = JObject.Parse(this.Request.Body.AsString());
@@ -131,7 +134,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 if(!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user)) 
                     return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
 
-                User member = null;
+                LocalUser member = null;
 
                 int status = LocalUser.GetUserFromDB(userId, out member);
                 if(status == 0 && member.IsOwner)
@@ -184,6 +187,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
 
             });
 
+            //USER
             Post("/user", async (x, ct) =>
             {
                 var bodyJson = JObject.Parse(this.Request.Body.AsString());
@@ -211,39 +215,54 @@ namespace REAC_AndroidAPI.Handlers.Requests
                     Role = userRole
                 });
 
-                if(userId > 0)
-                    return Response.AsJson(new MainResponse<long>(userId));
+                if (userId > 0)
+                {
+                    //SEND LOCKING DEVICE THE USERID AND WAIT UNTIL THE LOCKING DEVICE RETURNS THAT THE PROCESS IS GOING TO START
+                    //IF NOT I SHOULD RETURN locker_device_not_found AND DELETE USER FROM DATABASE
+                    List<string> responses = null;
+                    try
+                    {
+                        responses = await Program.LockerDevicesManager.SendMessageToAllDevicesBlocking("create_user|" + userId + "|");
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    if (responses != null && responses.Count > 0)
+                        return Response.AsJson(new MainResponse<long>(userId));
+
+                    LocalUser.DeleteUserFromDB(userId);
+                    return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
+                }
                 if(userId == -2)
                     return Response.AsJson(new MainResponse<byte>(true, "name_already_in_use"));
                 return Response.AsJson(new MainResponse<byte>(true, "database_error"));
             });
 
-            Get("/user", async (x, ct) =>
+            /*Get("/user", async (x, ct) =>
             {
                 await Task.Delay(1000);
                 var jsonString = this.Request.Body.AsString();
                 return Response.AsJson(jsonString);
-                /*return Response.AsJson(new List<User>() {
-                    new User(userId),
-                });*/
-            });
+            });*/
 
-            Put("/user", async (x, ct) =>
+            /*Put("/user", async (x, ct) =>
             {
                 await Task.Delay(1000);
                 var jsonString = this.Request.Body.AsString();
                 return Response.AsJson(jsonString);
-                /*return Response.AsJson(new List<User>() {
-                    new User(userId),
-                });*/
-            });
+            });*/
 
-            Get("/user/image/{id}", async (x, ct) =>
+            Get("/user/{id}/face/{photo}/", async (x, ct) =>
             {
-                uint id = 0;
                 string sessionId = this.Request.Query["session_id"];
-                
-                if (sessionId == null || !UInt32.TryParse(x.id.ToString(), out id))
+                string userIdString = x.id.ToString();
+                string photoIdString = x.photo.ToString();
+                uint userId = 0;
+                int photoId = 0;
+
+                if (sessionId == null || userIdString == null || !UInt32.TryParse(userIdString, out userId) || photoIdString == null || !Int32.TryParse(photoIdString, out photoId))
                 {
                     return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
                 }
@@ -252,7 +271,109 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
                     return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
 
-                return Response.FromByteArray(ProfilePhoto.GetProfilePhoto(id), "image/jpeg");
+                LocalUser member = null;
+
+                int status = LocalUser.GetUserFromDB(userId, out member);
+
+                if (status == -1)
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+                List<byte[]> responses = null;
+                try
+                {
+                    responses = await Program.LockerDevicesManager.GetImageUserRecognition(userId, photoId);
+                }
+                catch (Exception)
+                {
+
+                }
+
+                if (responses != null && responses.Count > 0)
+                    return Response.FromByteArray(responses[0], "image/png");
+
+                return Response.AsJson(new MainResponse<byte>(true, "no_image_found"));
+            });
+
+            Get("/user/{id}/profile/image/", async (x, ct) =>
+            {
+                string sessionId = this.Request.Query["session_id"];
+                string userIdString = x.id.ToString();
+                uint userId = 0;
+
+                if (sessionId == null || userIdString == null || !UInt32.TryParse(userIdString, out userId))
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                LocalUser member = null;
+
+                int status = LocalUser.GetUserFromDB(userId, out member);
+
+                if (status == -1)
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+                string imageFormat = member.ProfilePhotoFormat;
+                byte[] image = ProfilePhoto.GetProfilePhoto(userId, member.ProfilePhotoFormat == "image/jpeg" ? "jpg" : "png", out imageFormat);
+
+                return Response.FromByteArray(image, imageFormat);
+            });
+
+            Post("/user/{id}/profile/image/", async (x, ct) =>
+            {
+                string sessionId = this.Request.Query["session_id"];
+                string userIdString = x.id.ToString();
+                uint userId = 0;
+
+                if (sessionId == null || userIdString == null || !UInt32.TryParse(userIdString, out userId))
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                LocalUser member = null;
+
+                int status = LocalUser.GetUserFromDB(userId, out member);
+
+                if (status == -1)
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+                var file = this.Request.Files.FirstOrDefault();
+
+                if (file != null)
+                {
+                    byte[] image = null;
+                    try
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            file.Value.CopyTo(ms);
+                            image = ms.ToArray();
+                        }
+                    }
+                    catch(Exception)
+                    {
+
+                    }
+
+                    if(image == null)
+                        return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+                    if (!LocalUser.UpdateImageFormatUserFromDB(userId, file.ContentType == "image/jpeg" ? 1 : 2))
+                        return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+
+                    ProfilePhoto.AddProfilePhoto(image, userId, file.ContentType == "image/jpeg" ? "jpg" : "png");
+                    return Response.AsJson(new MainResponse<string>("image_uploaded"));
+                }
+
+                return Response.AsJson(new MainResponse<byte>(true, "no_file_uploaded"));
             });
 
             Get("/user/{id}/images", async (x, ct) =>
@@ -270,15 +391,33 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
                     return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
 
-                List<String> images;
-                int status = LocalUser.GetImagesByUserFromDB(userId, out images);
+                List<string> responses = null;
+                try
+                {
+                    responses = await Program.LockerDevicesManager.SendMessageToAllDevicesBlocking("get_photo_list|" + user.UserID + "|");
+                }
+                catch (Exception)
+                {
 
-                if (status == -1)
-                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
-                /*else if(status == -1)
-                    return Response.AsJson(new MainResponse<byte>(true, "wrong_username"));*/
+                }
 
-                return Response.AsJson(new MainResponse<List<String>>(images));
+                if (responses != null && responses.Count > 0 && responses[0] != null)
+                {
+                    if(!responses[0].StartsWith("error"))
+                    {
+                        List<string> images = new List<string>();
+                        string message = responses[0];
+                        string value;
+                        while((value = getStringFirstValue(message, out message)) != String.Empty)
+                        {
+                            images.Add(value);
+                        }
+                        return Response.AsJson(new MainResponse<List<string>>(images));
+                    }
+                    return Response.AsJson(new MainResponse<byte>(true, "no_images_found"));
+                } 
+
+                return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
             });
 
             //USERS
@@ -371,7 +510,22 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
             });
 
+            //LOGS & NOTIFICATIONS
+
 #pragma warning restore CS1998
+        }
+
+        public static string getStringFirstValue(string message, out string substring)
+        {
+            int separatorIndex = message.IndexOf('|');
+            if (separatorIndex == -1)
+            {
+                substring = String.Empty;
+                return String.Empty;
+            }
+
+            substring = message.Substring(separatorIndex + 1);
+            return message.Substring(0, separatorIndex);
         }
     }
 }

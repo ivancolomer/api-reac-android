@@ -44,6 +44,8 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.Common
             this.State = ConnectionState.Open;
             this.Address = ((IPEndPoint)socket.RemoteEndPoint).ToString().Split(':')[0];
 
+            sendDone = new ManualResetEvent(false);
+
             this.BeginReceive();
         }
 

@@ -19,7 +19,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
         private LockerDevicesManager ClientManager;
         public long LastTimeReaden { get; set; }
 
-        private ConcurrentDictionary<long, TaskCompletionSource<string>> MessagesWaitingForResponse;
+        private ConcurrentDictionary<long, TaskCompletionSource<object>> MessagesWaitingForResponse;
         private long LastPacketID;
 
         private long imagePacketId = -1;
@@ -27,14 +27,12 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
         private int imageRead = 0;
         private MemoryStream image = null;
 
-        public byte[] LastImageSent = null;
-
         public LockerDevice(LockerDevicesManager clientManager, Socket Socket)
             : base(Socket)
         {
             ClientManager = clientManager;
             LastTimeReaden = Time.GetTime();
-            MessagesWaitingForResponse = new ConcurrentDictionary<long, TaskCompletionSource<string>>();
+            MessagesWaitingForResponse = new ConcurrentDictionary<long, TaskCompletionSource<object>>();
             LastPacketID = 0;
         }
 
@@ -61,10 +59,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
                     return;
                 }
 
-                Logger.WriteLineWithHeader(imageRead.ToString(), "ON_IMAGE_RECEIVED", Logger.LOG_LEVEL.DEBUG);
-                LastImageSent = image.ToArray();
-
-                SendResponseToMessage(imagePacketId, "image_sent");
+                SendResponseToMessage(imagePacketId, image.ToArray());
                 
                 imagePacketId = -1;
                 imageRead = 0;
@@ -77,7 +72,6 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
 
             string stringPacket = Encoding.UTF8.GetString(body, start, length - start);
             string totalHeader = "";
-            //Logger.WriteLineWithHeader(stringPacket, "NEW_MESSAGE", Logger.LOG_LEVEL.DEBUG);
 
             string message;
             string value = getStringFirstValue(stringPacket, out message);
@@ -86,6 +80,12 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             totalHeader += value + "|";
 
             long packetId = long.Parse(value);
+
+            if (message.StartsWith("error|"))
+            {
+                SendResponseToMessage(packetId, null);
+                return;
+            }
 
             if (message.StartsWith("send_image|"))
             {
@@ -102,31 +102,28 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
                 imageSize = int.Parse(value);
                 if (imageSize > 0)
                 {
-                    Logger.WriteLineWithHeader(totalHeader, "header", Logger.LOG_LEVEL.DEBUG);
-
                     image = new MemoryStream();
                     byte[] headerInBytes = Encoding.UTF8.GetBytes(totalHeader);
                     if (length - start > headerInBytes.Length)
                     {
                         image.Write(body, start + headerInBytes.Length, length - start - headerInBytes.Length);
                         imageRead += length - headerInBytes.Length - start;
-                        Logger.WriteLineWithHeader(imageRead.ToString(), "more length", Logger.LOG_LEVEL.DEBUG);
                     }
                     imagePacketId = packetId;
 
                     return;
                 }
 
-                SendResponseToMessage(packetId, "image_error");
+                SendResponseToMessage(packetId, null);
                 return;
             }
 
             SendResponseToMessage(packetId, message);
         }
 
-        private void SendResponseToMessage(long packetId, string response)
+        private void SendResponseToMessage(long packetId, object response)
         {
-            TaskCompletionSource<string> tcs;
+            TaskCompletionSource<object> tcs;
             if (MessagesWaitingForResponse.TryRemove(packetId, out tcs))
             {
                 try
@@ -140,7 +137,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             }
         }
 
-        public void BlockingSend(string Message, TaskCompletionSource<string> tcs)
+        public void BlockingSend(string Message, TaskCompletionSource<object> tcs)
         {
             long packetId = Interlocked.Increment(ref LastPacketID);
 
@@ -184,7 +181,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             }
         }
 
-        public string getStringFirstValue(string message, out string substring)
+        public static string getStringFirstValue(string message, out string substring)
         {
             int separatorIndex = message.IndexOf('|');
             if (separatorIndex == -1)

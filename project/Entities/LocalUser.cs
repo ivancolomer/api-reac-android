@@ -9,14 +9,15 @@ namespace REAC_AndroidAPI.Entities
 {
     public class LocalUser : User
     {
-        private const string URL_TO_IMAGE = "/api/image/";
-        private const string URL_TO_PROFILE_IMAGE_BEFORE = "/api/user/";
-        private const string URL_TO_PROFILE_IMAGE_AFTER = "/profile/image";
+        public const string URL_USER_IMAGE = "/api/user/";
+        public const string URL_USER_PROFILE_IMAGE = "/profile/image/";
+        public const string URL_USER_FACE_IMAGE = "/face/";
 
         //Stuff for the API in-memory User
         public string SessionID { get; set; }
         public string IPAddress { get; set; }
         public long TimeCreated { get; set; }
+        public string ProfilePhotoFormat { get; set; }
 
         public static LocalUser GetAdministratorFromDB(string userName, string password)
         {
@@ -25,7 +26,7 @@ namespace REAC_AndroidAPI.Entities
             {
                 using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
                 {
-                    string sql = "SELECT m.id, m.name, m.role " +
+                    string sql = "SELECT m.id, m.name, m.role, m.profile_photo_format " +
                         "FROM Administrator AS a " +
                         "INNER JOIN Member AS m ON m.id = a.member_id " +
                         "WHERE m.name = @user_name AND a.password_hash = @password_hash;";
@@ -56,7 +57,8 @@ namespace REAC_AndroidAPI.Entities
             newUser.IsOwner = true;
             newUser.Role = userRow["role"].ToString();
             newUser.Name = userRow["name"].ToString();
-            newUser.ProfilePhoto = URL_TO_PROFILE_IMAGE_BEFORE + userId.ToString() + URL_TO_PROFILE_IMAGE_AFTER;// + userRow["profile_photo_path"];
+            newUser.ProfilePhotoFormat = userRow["profile_photo_format"].ToString() == "2" ? "image/png" : "image/jpeg";
+            newUser.ProfilePhoto = URL_USER_IMAGE + userId.ToString() + URL_USER_PROFILE_IMAGE;// + userRow["profile_photo_path"];
             return newUser;
         }
 
@@ -85,7 +87,7 @@ namespace REAC_AndroidAPI.Entities
             return count;
         }
 
-        public static int GetImagesByUserFromDB(uint userId, out List<String> images)
+        /*public static int GetImagesByUserFromDB(uint userId, out List<String> images)
         {
             images = new List<String>();
 
@@ -116,9 +118,9 @@ namespace REAC_AndroidAPI.Entities
             }
 
             return 0;
-        }
+        }*/
 
-        public static int GetUserFromDB(uint userId, out User user)
+        public static int GetUserFromDB(uint userId, out LocalUser user)
         {
             DataRow row = null;
             user = null;
@@ -128,7 +130,7 @@ namespace REAC_AndroidAPI.Entities
                 using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
                 {
                     client.SetParameter("@user_id", userId);
-                    row = client.ExecuteQueryRow("SELECT m.id, m.name, m.role, a.id AS admin_id " +
+                    row = client.ExecuteQueryRow("SELECT m.id, m.name, m.role, m.profile_photo_format, a.id AS admin_id " +
                         "FROM Member AS m " +
                         "LEFT JOIN Administrator AS a ON m.id = a.member_id " +
                         "WHERE m.id = @user_id;");
@@ -145,12 +147,13 @@ namespace REAC_AndroidAPI.Entities
             //uint profilePhoto = UInt32.TryParse(row["profile_photo"].ToString(), out profilePhoto) ? profilePhoto : 0;
             uint adminID = UInt32.TryParse(row["admin_id"].ToString(), out adminID) ? adminID : 0;
 
-            User newUser = new User();
+            LocalUser newUser = new LocalUser();
             user.UserID = userId;
             user.Role = row["role"].ToString();
             user.IsOwner = adminID > 0;
             user.Name = row["name"].ToString();
-            user.ProfilePhoto = URL_TO_PROFILE_IMAGE_BEFORE + userId.ToString() + URL_TO_PROFILE_IMAGE_AFTER;
+            user.ProfilePhoto = URL_USER_IMAGE + userId.ToString() + URL_USER_PROFILE_IMAGE;
+            user.ProfilePhotoFormat = row["profile_photo_format"].ToString() == "2" ? "image/png" : "image/jpeg";
 
             return 0;
         }
@@ -191,7 +194,7 @@ namespace REAC_AndroidAPI.Entities
                 newUser.Role = row["role"].ToString();
                 newUser.IsOwner = adminID > 0;
                 newUser.Name = row["name"].ToString();
-                newUser.ProfilePhoto = URL_TO_PROFILE_IMAGE_BEFORE + userId.ToString() + URL_TO_PROFILE_IMAGE_AFTER;
+                newUser.ProfilePhoto = URL_USER_IMAGE + userId.ToString() + URL_USER_PROFILE_IMAGE;
 
                 users.Add(newUser);
             }
@@ -236,6 +239,47 @@ namespace REAC_AndroidAPI.Entities
             }
 
             return 0;
+        }
+
+        public static bool DeleteUserFromDB(long userId)
+        {
+            try
+            {
+                using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
+                {
+                    string sql = "DELETE FROM Member WHERE id = @user_id;";
+                    client.SetParameter("@user_id", userId);
+
+                    if (client.ExecuteNonQuery(sql) == 1)
+                        return true;           
+                }
+            }
+            catch (DbException e)
+            {
+            }
+
+            return false;
+        }
+
+        public static bool UpdateImageFormatUserFromDB(long userId, int format)
+        {
+            try
+            {
+                using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
+                {
+                    string sql = "UPDATE Member SET profile_photo_format = @format WHERE id = @user_id;";
+                    client.SetParameter("@user_id", userId);
+                    client.SetParameter("@format", format);
+
+                    if (client.ExecuteNonQuery(sql) == 1)
+                        return true;
+                }
+            }
+            catch (DbException e)
+            {
+            }
+
+            return false;
         }
 
         public static long InsertNewAdministratorToDB(LocalUser user, byte[] password)

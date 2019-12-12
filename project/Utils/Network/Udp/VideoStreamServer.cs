@@ -18,8 +18,6 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
         public bool stopListeningTo;
         private UdpClient udpClient;
 
-        private long lastPacketDate = 0;
-
         private BlockingCollection<byte[]> packetCollection = new BlockingCollection<byte[]>(2048);
 
         public VideoStreamServer()
@@ -44,21 +42,6 @@ namespace REAC2_AndroidAPI.Utils.Network.Udp
                 {
                     try
                     {
-                        //long dateNow = Time.GetTime();
-                        //if(lastPacketDate != 0)
-                        //{
-                        //    long difference = dateNow - lastPacketDate;
-                        //    Logger.WriteLine("video_bytes", Logger.LOG_LEVEL.DEBUG);
-                        //}
-                        //lastPacketDate = dateNow;
-
-                        /*long dateNow = Time.GetTime();
-                        if (dateNow - lastPacketDate > 30000)
-                        {
-                            Logger.WriteLine("video_bytes", Logger.LOG_LEVEL.DEBUG);
-                            lastPacketDate = dateNow;
-                        }*/
-                        
                         if (Program.VideoClientsManager != null && Program.VideoClientsManager.Clients.Count > 0)
                             packetCollection.TryAdd(receiveBytes);
                     }
