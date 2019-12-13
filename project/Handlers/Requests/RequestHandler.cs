@@ -36,6 +36,52 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.AsJson(new MainResponse<String>(ipAddress));
             });
 
+            //REGISTER
+            Post("/register", async (x, ct) =>
+            {
+                var bodyJson = JObject.Parse(this.Request.Body.AsString());
+
+                string serialId = bodyJson["serial_id"]?.ToString();
+                string userName = bodyJson["user_name"]?.ToString();
+
+                if (serialId == null || userName == null)
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                if (userName.Length < 4)
+                    return Response.AsJson(new MainResponse<byte>(true, "short_username_length"));
+
+                int adminCount = LocalUser.GetAdministratorsCountFromDB();
+
+                if (adminCount == -1)
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+                if (adminCount >= 1)
+                    return Response.AsJson(new MainResponse<byte>(true, "admin_already_exists"));
+
+                if (serialId != DotNetEnv.Env.GetString("SERIAL_ID"))
+                    return Response.AsJson(new MainResponse<byte>(true, "wrong_serial_id"));
+
+                //INSERT NEW ADMINISTRATOR ACCOUNT, return random password...
+                byte[] newPasswordBytes = RandomGenerator.GenerateRandomBytes(32);
+
+                long status = LocalUser.InsertNewAdministratorToDB(new LocalUser
+                {
+                    Name = userName,
+                    Role = "ADMIN"
+                }, newPasswordBytes);
+
+                if (status > 0)
+                    return Response.AsJson(new MainResponse<String>(Convert.ToBase64String(newPasswordBytes)));
+                else if (status == -2)
+                    return Response.AsJson(new MainResponse<byte>(true, "name_already_in_use"));
+                else if (status == -3)
+                    return Response.AsJson(new MainResponse<byte>(true, "member_is_already_an_admin"));
+                else
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+            });
+
             //LOGIN
             Get("/login", async (x, ct) =>
             {
@@ -68,53 +114,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 UsersManager.AddUser(user);
 
                 return Response.AsJson(new MainResponse<String>(user.SessionID));
-            });
-
-            //REGISTER
-            Post("/register", async (x, ct) =>
-            {
-                var bodyJson = JObject.Parse(this.Request.Body.AsString());
-
-                string serialId = bodyJson["serial_id"]?.ToString();
-                string userName = bodyJson["user_name"]?.ToString();
-
-                if (serialId == null || userName == null)
-                {
-                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
-                }
-
-                if(userName.Length < 4)
-                    return Response.AsJson(new MainResponse<byte>(true, "short_username_length"));
-
-                int adminCount = LocalUser.GetAdministratorsCountFromDB();
-
-                if(adminCount == -1)
-                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
-
-                if (adminCount >= 1)
-                    return Response.AsJson(new MainResponse<byte>(true, "admin_already_exists"));
-
-                if(serialId != DotNetEnv.Env.GetString("SERIAL_ID"))
-                    return Response.AsJson(new MainResponse<byte>(true, "wrong_serial_id"));
-
-                //INSERT NEW ADMINISTRATOR ACCOUNT, return random password...
-                byte[] newPasswordBytes = RandomGenerator.GenerateRandomBytes(32);
-
-                long status = LocalUser.InsertNewAdministratorToDB(new LocalUser
-                {
-                    Name = userName,
-                    Role = "ADMIN"
-                }, newPasswordBytes);
-
-                if (status > 0)
-                    return Response.AsJson(new MainResponse<String>(Convert.ToBase64String(newPasswordBytes)));
-                else if(status == -2)
-                    return Response.AsJson(new MainResponse<byte>(true, "name_already_in_use"));
-                else if (status == -3)
-                    return Response.AsJson(new MainResponse<byte>(true, "member_is_already_an_admin"));
-                else
-                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
-            });
+            }); 
 
             //ADMIN
             Post("/admin", async (x, ct) =>
@@ -219,7 +219,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 {
                     //SEND LOCKING DEVICE THE USERID AND WAIT UNTIL THE LOCKING DEVICE RETURNS THAT THE PROCESS IS GOING TO START
                     //IF NOT I SHOULD RETURN locker_device_not_found AND DELETE USER FROM DATABASE
-                    List<string> responses = null;
+                    /*List<string> responses = null;
                     try
                     {
                         responses = await Program.LockerDevicesManager.SendMessageToAllDevicesBlocking("create_user|" + userId + "|");
@@ -229,32 +229,111 @@ namespace REAC_AndroidAPI.Handlers.Requests
 
                     }
 
-                    if (responses != null && responses.Count > 0)
+                    if (responses != null && responses.Count > 0)*/
                         return Response.AsJson(new MainResponse<long>(userId));
 
-                    LocalUser.DeleteUserFromDB(userId);
-                    return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
+                    /*LocalUser.DeleteUserFromDB(userId);
+                    return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));*/
                 }
                 if(userId == -2)
                     return Response.AsJson(new MainResponse<byte>(true, "name_already_in_use"));
                 return Response.AsJson(new MainResponse<byte>(true, "database_error"));
             });
 
-            /*Get("/user", async (x, ct) =>
+            Post("/user/biometric", async (x, ct) =>
             {
-                await Task.Delay(1000);
-                var jsonString = this.Request.Body.AsString();
-                return Response.AsJson(jsonString);
-            });*/
+                var bodyJson = JObject.Parse(this.Request.Body.AsString());
 
-            /*Put("/user", async (x, ct) =>
+                string sessionId = bodyJson["session_id"]?.ToString();
+                string userIdString = bodyJson["user_id"]?.ToString();
+                uint userId = 0;
+
+                if (sessionId == null || userIdString == null || !uint.TryParse(userIdString, out userId))
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                LocalUser member = null;
+
+                int status = LocalUser.GetUserFromDB(userId, out member);
+
+                if (status == -1)
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+                List<string> responses = null;
+                try
+                {
+                    responses = await Program.LockerDevicesManager.SendMessageToAllDevicesBlocking("create_user|" + userId + "|");
+                }
+                catch (Exception)
+                {
+
+                }
+
+                if (responses != null && responses.Count > 0)
+                    return Response.AsJson(new MainResponse<string>("biometric_process_has_begun"));
+
+                //LocalUser.DeleteUserFromDB(userId);
+                return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
+            });
+
+            Get("/user/{id}/images", async (x, ct) =>
             {
-                await Task.Delay(1000);
-                var jsonString = this.Request.Body.AsString();
-                return Response.AsJson(jsonString);
-            });*/
+                string sessionId = this.Request.Query["session_id"];
+                string userIdString = x.id.ToString();
+                uint userId = 0;
 
-            Get("/user/{id}/face/{photo}/", async (x, ct) =>
+                if (sessionId == null || userIdString == null || !UInt32.TryParse(userIdString, out userId))
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                LocalUser member = null;
+
+                int status = LocalUser.GetUserFromDB(userId, out member);
+
+                if (status == -1)
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+
+                List<string> responses = null;
+                try
+                {
+                    responses = await Program.LockerDevicesManager.SendMessageToAllDevicesBlocking("get_photo_list|" + member.UserID + "|");
+                }
+                catch (Exception)
+                {
+
+                }
+
+                if (responses != null && responses.Count > 0 && responses[0] != null)
+                {
+                    if (!responses[0].StartsWith("error"))
+                    {
+                        List<string> images = new List<string>();
+                        string message = responses[0];
+                        string value;
+                        while ((value = getStringFirstValue(message, out message)) != String.Empty)
+                        {
+                            images.Add(LocalUser.URL_USER_IMAGE + userId + LocalUser.URL_USER_FACE_IMAGE + value);
+                        }
+                        return Response.AsJson(new MainResponse<List<string>>(images));
+                    }
+                    return Response.AsJson(new MainResponse<byte>(true, "no_images_found"));
+                }
+
+                return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
+            });
+
+            Get("/user/{id}/face/{photo}", async (x, ct) =>
             {
                 string sessionId = this.Request.Query["session_id"];
                 string userIdString = x.id.ToString();
@@ -294,7 +373,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.AsJson(new MainResponse<byte>(true, "no_image_found"));
             });
 
-            Get("/user/{id}/profile/image/", async (x, ct) =>
+            Get("/user/{id}/profile/image", async (x, ct) =>
             {
                 string sessionId = this.Request.Query["session_id"];
                 string userIdString = x.id.ToString();
@@ -322,7 +401,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.FromByteArray(image, imageFormat);
             });
 
-            Post("/user/{id}/profile/image/", async (x, ct) =>
+            Post("/user/{id}/profile/image", async (x, ct) =>
             {
                 string sessionId = this.Request.Query["session_id"];
                 string userIdString = x.id.ToString();
@@ -376,50 +455,6 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.AsJson(new MainResponse<byte>(true, "no_file_uploaded"));
             });
 
-            Get("/user/{id}/images", async (x, ct) =>
-            {
-                string sessionId = this.Request.Query["session_id"];
-                string userIdString = x.id.ToString();
-                uint userId = 0;
-
-                if (sessionId == null || userIdString == null || !UInt32.TryParse(userIdString, out userId))
-                {
-                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
-                }
-
-                LocalUser user;
-                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
-                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
-
-                List<string> responses = null;
-                try
-                {
-                    responses = await Program.LockerDevicesManager.SendMessageToAllDevicesBlocking("get_photo_list|" + user.UserID + "|");
-                }
-                catch (Exception)
-                {
-
-                }
-
-                if (responses != null && responses.Count > 0 && responses[0] != null)
-                {
-                    if(!responses[0].StartsWith("error"))
-                    {
-                        List<string> images = new List<string>();
-                        string message = responses[0];
-                        string value;
-                        while((value = getStringFirstValue(message, out message)) != String.Empty)
-                        {
-                            images.Add(value);
-                        }
-                        return Response.AsJson(new MainResponse<List<string>>(images));
-                    }
-                    return Response.AsJson(new MainResponse<byte>(true, "no_images_found"));
-                } 
-
-                return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
-            });
-
             //USERS
             Get("/users", async (x, ct) =>
             {
@@ -442,6 +477,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.AsJson(new MainResponse<List<User>>(users));
             });
 
+            //CAMERA
             Get("/video", async (x, ct) =>
             {
                 string sessionId = this.Request.Query["session_id"];
@@ -482,6 +518,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.AsJson(new MainResponse<byte>(true, "no_live_image_available"));
             });
 
+            //DOOR
             Get("/door", async (x, ct) =>
             {
                 string sessionId = this.Request.Query["session_id"];

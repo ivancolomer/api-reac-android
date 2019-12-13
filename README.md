@@ -10,35 +10,18 @@ The API will be RESTful and their CRUD operations are defined below:
 | ------ | ------------------- | --- |
 | GET    | /api/ipaddress      | Returns the External IP Address of the Server |
 
+
 ### [Register Administrator](#register_administrator_extra) 
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | POST    | /api/register      | Register a new Administrator when there isn't any (on first setup) |
+
 
 ### [Login Administrator](#login_administrator_extra) 
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/login          | Login for Administrator users |
 
-### [Users List](#users_list)
-| Method | Url | Action |
-| ------ | ------------------- | --- |
-| GET    | /api/users          | Retrieves a list with information about every member |
-
-### [User Images List](#user_images_list)
-| Method | Url | Action |
-| ------ | ------------------- | --- |
-| GET    | /api/user/:userid/images  | Retrieves a list with all the photo URIs from that user |
-
-### [User Image](#user_image)
-| Method | Url | Action |
-| ------ | ------------------- | --- |
-| GET    | /api/user/image/:image_id | Get the image |
-
-### [Create User](#create_user)
-| Method | Url | Action |
-| ------ | ------------------- | --- |
-| POST   | /api/user           | Registers a new user into the database |
 
 ### [User To Admin](#user_to_admin)
 | Method | Url | Action |
@@ -50,15 +33,55 @@ The API will be RESTful and their CRUD operations are defined below:
 | ------ | ------------------- | --- |
 | GET    | /api/admin/confirm  | Returns a password of the new created admin (it should be done from the other android device) |
 
+
+### [Create User](#create_user)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| POST   | /api/user           | Registers a new user into the database |
+
+### [Start Biometric Data User](#start_bio)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| POST   | /api/user/biometric | Sends to locker device that an user should be registered (get face and fingerprint) |
+
+### [User Biometric Images List](#user_images_list)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /api/user/:userid/images  | Retrieves a list with all the photo URIs from that user's face |
+
+### [User Face Image](#user_image)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /api/user/:userid/face/:imageid | Get the face image from a user |
+
+### [User Profile Image](#user_profile_image)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /api/user/:userid/profile/image | Get the profile image from a user |
+
+### [Upload User Profile Image](#upload_user_profile_image)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| POST    | /api/user/:userid/profile/image | Upload the profile image from a user |
+
+
+### [Users List](#users_list)
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /api/users          | Retrieves a list with information about every member |
+
+
 ### [Camera Streaming](#camera_streaming)
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/video          | Ask the server to give the current snapshot/image back from the video streaming camera |
 
+
 ### [Open Door](#open_door)
 | Method | Url | Action |
 | ------ | ------------------- | --- |
 | GET    | /api/door           | Ask the server to open the door (for 3 seconds) |
+
 
 ### [Get Log](#get_log)
 | Method | Url | Action |
@@ -154,6 +177,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
       "content": 0
     }
     ```
+
 
 <a name="register_administrator_extra"/>
 
@@ -274,6 +298,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     }
     ```
 
+
 <a name="login_administrator_extra"/>
 
 **Login Administrator**
@@ -347,29 +372,31 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     }
     ```
 
-<a name="users_list"/>
 
-**Users List**
+<a name="user_to_admin"/>
+
+**User To Admin**
 ----
-   Retrieves a list with information about every member. Returns an array of JObject on `content` field with information about all the users registered in the database (owners and members).
+   It's used for upgrading a member to administator/owner level. Returns a string on `content` field with the session_id needed for completing the upgrade. This session_id will expire within the next 5 minutes. A way to send the url from Android to Android has to be coded (via QR maybe??). The url sent should be: http://<SERVER_IP>/api/admin/confirm?session_id=<SESSION_ID>
 
 * ***URL***
 
-  /api/users
+  /api/admin
 
 * **Method:**
 
-  `GET`
+  `POST`
   
 * **URL Params**
 
-  **Required:**
- 
-   `session_id=[string]` the logged-in session_id.
+   None
 
 * **Data Params**
 
-  None
+  **Required:**
+
+  `user_id=[uint]` the id of the user to upgrade ownership. <br />
+  `session_id=[string]` the logged-in session_id.
 
 * **Success Response:**
 
@@ -377,31 +404,9 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     **Content:** 
     ```javascript
     {
-        "error": false,
-        "errorMessage": "",
-        "content": [
-            {
-                "isOwner": true,
-                "userID": 1,
-                "name": "ivan",
-                "role": "ADMIN",
-                "profilePhoto": "/api/user/image/0"
-            },
-            {
-                "isOwner": true,
-                "userID": 6,
-                "name": "ivan2",
-                "role": "ADMIN",
-                "profilePhoto": "/api/user/image/0"
-            },
-            {
-                "isOwner": false,
-                "userID": 8,
-                "name": "Test1",
-                "role": "MEMBER",
-                "profilePhoto": "/api/user/image/0"
-            }
-        ]
+      "error": false,
+      "errorMessage": "",
+      "content": "F9-20-F6-89-6E-3E-76-4D-A3-20-EB-5F-74-F9-99-50"
     }
     ```
  
@@ -413,141 +418,11 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     {
       "error": true,
       "errorMessage": "missing_request_parameters",
-      "content": 0
-    }
-    ```
-
-  OR
-
-  * **Code:** 200 <br />
-    **Content:** 
-    ```javascript
-    {
-      "error": true,
-      "errorMessage": "expired_session_id",
-      "content": 0
-    }
-    ```
-
-  OR
-
-  * **Code:** 200 <br />
-    **Content:** 
-    ```javascript
-    {
-      "error": true,
-      "errorMessage": "database_error",
-      "content": 0
-    }
-    ```
-
-<a name="user_images_list"/>
-
-**User Images List**
-----
-   Retrieves a list with all the links of the user's images. Returns an array of uint on `content` field.
-
-* ***URL***
-
-  /api/user/:userid/images
-
-* **Method:**
-
-  `GET`
-  
-* **URL Params**
-
-  **Required:**
- 
-   `:userid=[uint]` the name of the user. <br />
-   `session_id=[string]` the logged-in session_id.
-
-* **Data Params**
-
-  None
-
-* **Success Response:**
-
-  * **Code:** 200 <br />
-    **Content:** 
-    ```javascript
-    {
-        "error": false,
-        "errorMessage": "",
-        "content": [ "/api/user/image/1", "/api/user/image/2", "/api/user/image/3" ]
-    }
-    ```
- 
-* **Error Response:**
-
-  * **Code:** 200 <br />
-    **Content:** 
-    ```javascript
-    {
-      "error": true,
-      "errorMessage": "missing_request_parameters",
-      "content": 0
-    }
-    ```
-
-  OR
-
-  * **Code:** 200 <br />
-    **Content:** 
-    ```javascript
-    {
-      "error": true,
-      "errorMessage": "expired_session_id",
-      "content": 0
-    }
-    ```
-
-  OR
-
-  * **Code:** 200 <br />
-    **Content:** 
-    ```javascript
-    {
-      "error": true,
-      "errorMessage": "database_error",
       "content": 0
     }
     ```
     
-<a name="user_image"/>
-
-**User Image**
-----
-   It's used for downloading an image from the server. Returns a response with Content-Type set to "image/jpeg".
-
-* ***URL***
-
-  /api/user/image/:image_id
-
-* **Method:**
-
-  `GET`
-  
-* **URL Params**
-
-  **Required:**
- 
-   `image_id=[uint]` the id of the photo. <br />
-   `session_id=[string]` the logged-in session_id.
-
-* **Data Params**
-
-  None
-
-* **Success Response:**
-
-  * **Code:** 200 <br />
-    **Content:** 
-    ```
-    Content-Type: "image/jpeg"
-    ```
- 
-* **Error Response:**
+  OR
 
   * **Code:** 200 <br />
     **Content:** 
@@ -558,6 +433,128 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
       "content": 0
     }
     ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "member_is_already_an_admin",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
+  
+  
+<a name="user_to_admin_confirm"/>
+
+**User To Admin Confirm**
+----
+   It's used for upgrading a member to administator/owner level. Returns a string on `content` field with the password_id needed for completing the upgrade. 
+
+* ***URL***
+
+  /api/admin/confirm
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+   **Required:**
+
+  `session_id=[string]` the new one time session_id generated on the previous step.
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": false,
+      "errorMessage": "",
+      "content": "HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA="
+    }
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+    
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "member_is_already_an_admin",
+      "content": 0
+    }
+    ```
+        
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "member_id_not_found",
+      "content": 0
+    }
+    ```
+    
+     OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
+
 
 <a name="create_user"/>
 
@@ -656,16 +653,17 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
       "content": 0
     }
     ```
-    
-<a name="user_to_admin"/>
 
-**User To Admin**
+
+<a name="start_bio"/>
+
+**Start Biometric Data User**
 ----
-   It's used for upgrading a member to administator/owner level. Returns a string on `content` field with the session_id needed for completing the upgrade. This session_id will expire within the next 5 minutes. A way to send the url from Android to Android has to be coded (via QR maybe??). The url sent should be: http://<SERVER_IP>/api/admin/confirm?session_id=<SESSION_ID>
+   It's used for signaling the locker device to start the biometric data process. Returns a string on `content` field with value 'biometric_process_has_begun'.
 
 * ***URL***
 
-  /api/admin
+  /api/user/biometric
 
 * **Method:**
 
@@ -679,7 +677,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
   **Required:**
 
-  `user_id=[uint]` the id of the user to upgrade ownership. <br />
+  `user_id=[uint]` the id of the user to start the process of biometric data. <br />
   `session_id=[string]` the logged-in session_id.
 
 * **Success Response:**
@@ -690,7 +688,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     {
       "error": false,
       "errorMessage": "",
-      "content": "F9-20-F6-89-6E-3E-76-4D-A3-20-EB-5F-74-F9-99-50"
+      "content": "biometric_process_has_begun"
     }
     ```
  
@@ -725,7 +723,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     ```javascript
     {
       "error": true,
-      "errorMessage": "member_is_already_an_admin",
+      "errorMessage": "database_error",
       "content": 0
     }
     ```
@@ -737,20 +735,21 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     ```javascript
     {
       "error": true,
-      "errorMessage": "database_error",
+      "errorMessage": "locker_device_not_found",
       "content": 0
     }
     ```
-    
-<a name="user_to_admin_confirm"/>
 
-**User To Admin Confirm**
+
+<a name="user_images_list"/>
+
+**User Biometric Images List**
 ----
-   It's used for upgrading a member to administator/owner level. Returns a string on `content` field with the password_id needed for completing the upgrade. 
+   Retrieves a list with all the links of the user's face images. Returns an array of strings (links) on `content` field.
 
 * ***URL***
 
-  /api/admin/confirm
+  /api/user/:userid/images
 
 * **Method:**
 
@@ -758,9 +757,10 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
   
 * **URL Params**
 
-   **Required:**
-
-  `session_id=[string]` the new one time session_id generated on the previous step.
+  **Required:**
+ 
+   `:userid=[uint]` the name of the user. <br />
+   `session_id=[string]` the logged-in session_id.
 
 * **Data Params**
 
@@ -772,9 +772,9 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     **Content:** 
     ```javascript
     {
-      "error": false,
-      "errorMessage": "",
-      "content": "HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA="
+        "error": false,
+        "errorMessage": "",
+        "content": [ "/api/user/2/face/1", "/api/user/2/face/2", "/api/user/2/face/3" ]
     }
     ```
  
@@ -789,7 +789,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
       "content": 0
     }
     ```
-    
+
   OR
 
   * **Code:** 200 <br />
@@ -801,32 +801,8 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
       "content": 0
     }
     ```
-        
-  OR
 
-  * **Code:** 200 <br />
-    **Content:** 
-    ```javascript
-    {
-      "error": true,
-      "errorMessage": "member_is_already_an_admin",
-      "content": 0
-    }
-    ```
-        
   OR
-
-  * **Code:** 200 <br />
-    **Content:** 
-    ```javascript
-    {
-      "error": true,
-      "errorMessage": "member_id_not_found",
-      "content": 0
-    }
-    ```
-    
-     OR
 
   * **Code:** 200 <br />
     **Content:** 
@@ -837,6 +813,367 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
       "content": 0
     }
     ```
+
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "no_images_found",
+      "content": 0
+    }
+    ```
+    
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "locker_device_not_found",
+      "content": 0
+    }
+    ```
+
+
+<a name="user_image"/>
+
+**User Face Image**
+----
+   It's used for downloading an face image from the server. Returns a response with Content-Type set to "image/png".
+
+* ***URL***
+
+  /api/user/:userid/face/:imageid
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+  **Required:**
+ 
+   `userid=[uint]` the id of the user to get the photo from. <br />
+   `imageid=[uint]` the id of the face photo. <br />
+   `session_id=[string]` the logged-in session_id.
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```
+    Content-Type: "image/png"
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+
+  OR
+
+   * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+
+  OR
+
+   * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
+
+  OR
+
+   * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "no_image_found",
+      "content": 0
+    }
+    ```
+
+
+<a name="user_profile_image"/>
+
+**User Profile Image**
+----
+   It's used for downloading the profile image from the server. Returns a response with Content-Type set to "image/png" or "image/jpeg".
+
+* ***URL***
+
+  /api/user/:userid/profile/image
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+  **Required:**
+ 
+   `userid=[uint]` the id of the user to get the photo from. <br />
+   `session_id=[string]` the logged-in session_id.
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```
+    Content-Type: "image/png"
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+
+  OR
+
+   * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+
+  OR
+
+   * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
+
+
+<a name="upload_user_profile_image"/>
+
+**Upload User Profile Image**
+----
+   It's used for uploading a profile image to the server. Returns a response with a string message "image_uploaded".
+
+* ***URL***
+
+  /api/user/:userid/profile/image
+
+* **Method:**
+
+  `POST`
+  
+* **URL Params**
+
+  **Required:**
+ 
+   `userid=[uint]` the id of the user to get the photo from. <br />
+   `session_id=[string]` the logged-in session_id.
+
+* **Data Params**
+
+   **Required:**
+ 
+    `file=[file]` the photo to be sent to the server. <br />
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": false,
+      "errorMessage": "",
+      "content": "image_uploaded"
+    }
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+
+  OR
+
+   * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+
+  OR
+
+   * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
+
+  OR
+
+   * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "no_file_uploaded",
+      "content": 0
+    }
+    ```
+
+
+<a name="users_list"/>
+
+**Users List**
+----
+   Retrieves a list with information about every member. Returns an array of JObject on `content` field with information about all the users registered in the database (owners and members).
+
+* ***URL***
+
+  /api/users
+
+* **Method:**
+
+  `GET`
+  
+* **URL Params**
+
+  **Required:**
+ 
+   `session_id=[string]` the logged-in session_id.
+
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+        "error": false,
+        "errorMessage": "",
+        "content": [
+            {
+                "isOwner": true,
+                "userID": 1,
+                "name": "ivan",
+                "role": "ADMIN",
+                "profilePhoto": "/api/user/image/0"
+            },
+            {
+                "isOwner": true,
+                "userID": 6,
+                "name": "ivan2",
+                "role": "ADMIN",
+                "profilePhoto": "/api/user/image/0"
+            },
+            {
+                "isOwner": false,
+                "userID": 8,
+                "name": "Test1",
+                "role": "MEMBER",
+                "profilePhoto": "/api/user/image/0"
+            }
+        ]
+    }
+    ```
+ 
+* **Error Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "missing_request_parameters",
+      "content": 0
+    }
+    ```
+
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "expired_session_id",
+      "content": 0
+    }
+    ```
+
+  OR
+
+  * **Code:** 200 <br />
+    **Content:** 
+    ```javascript
+    {
+      "error": true,
+      "errorMessage": "database_error",
+      "content": 0
+    }
+    ```
+
     
 <a name="camera_streaming"/>
 
@@ -918,6 +1255,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     }
     ```
         
+
 <a name="open_door"/>
 
 **Open Door**
@@ -950,7 +1288,9 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     {
       "error": false,
       "errorMessage": "",
-      "content": ""
+      "content": [
+        "door_opened"
+      ]
     }
     ```
  

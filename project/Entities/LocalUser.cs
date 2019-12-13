@@ -10,7 +10,7 @@ namespace REAC_AndroidAPI.Entities
     public class LocalUser : User
     {
         public const string URL_USER_IMAGE = "/api/user/";
-        public const string URL_USER_PROFILE_IMAGE = "/profile/image/";
+        public const string URL_USER_PROFILE_IMAGE = "/profile/image";
         public const string URL_USER_FACE_IMAGE = "/face/";
 
         //Stuff for the API in-memory User
