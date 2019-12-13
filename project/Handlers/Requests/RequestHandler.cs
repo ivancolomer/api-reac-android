@@ -427,6 +427,11 @@ namespace REAC_AndroidAPI.Handlers.Requests
 
                 if (file != null)
                 {
+                    if(file.ContentType != "image/jpeg" && file.ContentType != "image/png")
+                    {
+                        return Response.AsJson(new MainResponse<byte>(true, "no_file_uploaded"));
+                    }
+
                     byte[] image = null;
                     try
                     {
