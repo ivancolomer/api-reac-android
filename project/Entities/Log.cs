@@ -62,7 +62,7 @@ namespace REAC_AndroidAPI.Entities
                 newLog.ProfilePhoto = LocalUser.URL_USER_IMAGE + userId.ToString() + LocalUser.URL_USER_PROFILE_IMAGE;
                 
                 newLog.Info = row["info"].ToString();
-                newLog.Date = DateTime.ParseExact(row["date_added"].ToString(), "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.AssumeLocal).ToUniversalTime().ToString("dd/MM/yyyy-HH:mm:ss");
+                newLog.Date = DateTime.Parse(row["date_added"].ToString()).ToUniversalTime().ToString("dd/MM/yyyy-HH:mm:ss"); //DateTime.ParseExact(row["date_added"].ToString(), "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.AssumeLocal).ToUniversalTime().ToString("dd/MM/yyyy-HH:mm:ss");
 
                 logs.Add(newLog);
             }
@@ -111,7 +111,7 @@ namespace REAC_AndroidAPI.Entities
                 newLog.ProfilePhoto = LocalUser.URL_USER_IMAGE + userId.ToString() + LocalUser.URL_USER_PROFILE_IMAGE;
 
                 newLog.Info = row["info"].ToString();
-                newLog.Date = DateTime.ParseExact(row["date_added"].ToString(), "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.AssumeLocal).ToUniversalTime().ToString("dd/MM/yyyy-HH:mm:ss");
+                newLog.Date = DateTime.Parse(row["date_added"].ToString()).ToUniversalTime().ToString("dd/MM/yyyy-HH:mm:ss"); // DateTime.ParseExact(row["date_added"].ToString(), "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.AssumeLocal).ToUniversalTime().ToString("dd/MM/yyyy-HH:mm:ss");
 
                 logs.Add(newLog);
             }

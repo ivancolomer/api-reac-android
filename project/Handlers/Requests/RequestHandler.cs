@@ -610,7 +610,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.AsJson(new MainResponse<List<Log>>(logs));
             });
 
-            Get("/notifaction/{id}", async (x, ct) =>
+            Put("/notification/{id}", async (x, ct) =>
             {
                 string sessionId = this.Request.Query["session_id"];
                 string notificationIdString = x.id.ToString();

@@ -62,7 +62,7 @@ namespace REAC_AndroidAPI.Entities
             newUser.Name = userRow["name"].ToString();
             newUser.ProfilePhotoFormat = userRow["profile_photo_format"].ToString() == "2" ? "image/png" : "image/jpeg";
             newUser.ProfilePhoto = URL_USER_IMAGE + userId.ToString() + URL_USER_PROFILE_IMAGE;// + userRow["profile_photo_path"];
-            newUser.TimeRegisteredLocal = DateTime.ParseExact(userRow["date_added"].ToString(), "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.AssumeLocal);
+            newUser.TimeRegisteredLocal = DateTime.Parse(userRow["date_added"].ToString()); // DateTime.ParseExact(userRow["date_added"].ToString(), "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.AssumeLocal);
             return newUser;
         }
 
@@ -151,14 +151,13 @@ namespace REAC_AndroidAPI.Entities
             //uint profilePhoto = UInt32.TryParse(row["profile_photo"].ToString(), out profilePhoto) ? profilePhoto : 0;
             uint adminID = UInt32.TryParse(row["admin_id"].ToString(), out adminID) ? adminID : 0;
 
-            LocalUser newUser = new LocalUser();
+            user = new LocalUser();
             user.UserID = userId;
             user.Role = row["role"].ToString();
             user.IsOwner = adminID > 0;
             user.Name = row["name"].ToString();
             user.ProfilePhoto = URL_USER_IMAGE + userId.ToString() + URL_USER_PROFILE_IMAGE;
             user.ProfilePhotoFormat = row["profile_photo_format"].ToString() == "2" ? "image/png" : "image/jpeg";
-            //user.TimeRegisteredLocal = DateTime.ParseExact(row["date_added"].ToString(), "yyyy-MM-dd HH:mm:ss", null);
 
             return 0;
         }
