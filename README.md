@@ -1118,21 +1118,21 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
                 "userID": 1,
                 "name": "ivan",
                 "role": "ADMIN",
-                "profilePhoto": "/api/user/image/0"
+                "profilePhoto": "/api/user/1/profile/image"
             },
             {
                 "isOwner": true,
                 "userID": 6,
                 "name": "ivan2",
                 "role": "ADMIN",
-                "profilePhoto": "/api/user/image/0"
+                "profilePhoto": "/api/user/2/profile/image"
             },
             {
                 "isOwner": false,
                 "userID": 8,
                 "name": "Test1",
                 "role": "MEMBER",
-                "profilePhoto": "/api/user/image/0"
+                "profilePhoto": "/api/user/3/profile/image"
             }
         ]
     }
@@ -1369,24 +1369,24 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
                 "logID": 1,
                 "userID": 1,
                 "name": "ivan",
-                "profilePhoto": "/api/user/image/0",
-                "date": "10/12/2019 11:47:13",
+                "profilePhoto": "/api/user/1/profile/image",
+                "date": "10/12/2019-11:47:13",
                 "info": "user_to_owner"
             },
             {
                 "logID": 2,
                 "userID": 1,
                 "name": "ivan",
-                "profilePhoto": "/api/user/image/0",
-                "date": "10/12/2019 12:35:23",
+                "profilePhoto": "/api/user/2/profile/image",
+                "date": "10/12/2019-12:35:23",
                 "info": "button_open_door"
             },
             {
                 "logID": 3,
                 "userID": 1,
                 "name": "ivan",
-                "profilePhoto": "/api/user/image/0",
-                "date": "10/12/2019 12:36:17",
+                "profilePhoto": "/api/user/3/profile/image",
+                "date": "10/12/2019-12:36:17",
                 "info": "open_door"
             }
         ]
@@ -1466,24 +1466,24 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
                 "logID": 1,
                 "userID": 1,
                 "name": "ivan",
-                "profilePhoto": "/api/user/image/0",
-                "date": "10/12/2019 11:47:13",
+                "profilePhoto": "/api/user/1/profile/image",
+                "date": "10/12/2019-11:47:13",
                 "info": "user_to_owner"
             },
             {
                 "logID": 2,
                 "userID": 1,
                 "name": "ivan",
-                "profilePhoto": "/api/user/image/0",
-                "date": "10/12/2019 12:35:23",
+                "profilePhoto": "/api/user/2/profile/image",
+                "date": "10/12/2019-12:35:23",
                 "info": "button_open_door"
             },
             {
                 "logID": 3,
                 "userID": 1,
                 "name": "ivan",
-                "profilePhoto": "/api/user/image/0",
-                "date": "10/12/2019 12:36:17",
+                "profilePhoto": "/api/user/3/profile/image",
+                "date": "10/12/2019-12:36:17",
                 "info": "open_door"
             }
         ]

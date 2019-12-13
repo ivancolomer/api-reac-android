@@ -11,6 +11,7 @@ using REAC_AndroidAPI.Utils.Responses;
 using REAC_AndroidAPI.Utils.Storage;
 using System.Linq;
 using System.IO;
+using System.Globalization;
 
 namespace REAC_AndroidAPI.Handlers.Requests
 {
@@ -176,6 +177,8 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 if (status == 1)
                 {
                     user.IsOwner = true;
+                    user.TimeRegisteredLocal = DateTime.Now;
+                    Log.InsertNewLog(user.UserID, "user_to_owner");
                     return Response.AsJson(new MainResponse<String>(Convert.ToBase64String(newPasswordBytes)));
                 }
                 else if (status == -3)
@@ -546,13 +549,90 @@ namespace REAC_AndroidAPI.Handlers.Requests
 
                 }
 
-                if(responses != null && responses.Count > 0)
+                if (responses != null && responses.Count > 0)
+                {
+                    Log.InsertNewLog(user.UserID, "button_open_door");
                     return Response.AsJson(new MainResponse<List<string>>(responses));
+                }
 
                 return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
             });
 
             //LOGS & NOTIFICATIONS
+            Get("/logs", async (x, ct) =>
+            {
+                string sessionId = this.Request.Query["session_id"];
+                string beginDateString = this.Request.Query["begin_date"];
+                string endDateString = this.Request.Query["end_date"];
+
+                DateTime beginDate = DateTime.UtcNow;
+                DateTime endDate = DateTime.UtcNow;
+
+                if (sessionId == null || beginDateString == null || endDateString == null || !DateTime.TryParseExact(beginDateString, "dd/MM/yyyy-HH:mm:ss", null, DateTimeStyles.AssumeUniversal, out beginDate) || !DateTime.TryParseExact(endDateString, "dd/MM/yyyy-HH:mm:ss", null, DateTimeStyles.AssumeUniversal, out endDate))
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                beginDate = beginDate.ToLocalTime();
+                endDate = endDate.ToLocalTime();
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                List<Log> logs;
+                int status = Log.GetLogs(beginDate, endDate, out logs);
+
+                if (status < 0)
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+                return Response.AsJson(new MainResponse<List<Log>>(logs));
+            });
+
+            Get("/notifications", async (x, ct) =>
+            {
+                string sessionId = this.Request.Query["session_id"];
+                if (sessionId == null)
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                List<Log> logs;
+                int status = Log.GetNotifications(user, out logs);
+
+                if (status < 0)
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+                return Response.AsJson(new MainResponse<List<Log>>(logs));
+            });
+
+            Get("/notifaction/{id}", async (x, ct) =>
+            {
+                string sessionId = this.Request.Query["session_id"];
+                string notificationIdString = x.id.ToString();
+                uint notificationId = 0;
+
+                if (sessionId == null || notificationIdString == null || !UInt32.TryParse(notificationIdString, out notificationId))
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                if (Log.MarkNotificationAsRead(user, notificationId))
+                    return Response.AsJson(new MainResponse<string>(""));
+                else
+                    return Response.AsJson(new MainResponse<byte>(true, "database_error"));
+
+            });
+
+
 
 #pragma warning restore CS1998
         }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 
 namespace REAC_AndroidAPI.Entities
 {
@@ -19,6 +20,8 @@ namespace REAC_AndroidAPI.Entities
         public long TimeCreated { get; set; }
         public string ProfilePhotoFormat { get; set; }
 
+        public DateTime TimeRegisteredLocal { get; set; }
+
         public static LocalUser GetAdministratorFromDB(string userName, string password)
         {
             DataRow userRow = null;
@@ -26,7 +29,7 @@ namespace REAC_AndroidAPI.Entities
             {
                 using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
                 {
-                    string sql = "SELECT m.id, m.name, m.role, m.profile_photo_format " +
+                    string sql = "SELECT m.id, m.name, m.role, m.profile_photo_format, a.date_added " +
                         "FROM Administrator AS a " +
                         "INNER JOIN Member AS m ON m.id = a.member_id " +
                         "WHERE m.name = @user_name AND a.password_hash = @password_hash;";
@@ -59,6 +62,7 @@ namespace REAC_AndroidAPI.Entities
             newUser.Name = userRow["name"].ToString();
             newUser.ProfilePhotoFormat = userRow["profile_photo_format"].ToString() == "2" ? "image/png" : "image/jpeg";
             newUser.ProfilePhoto = URL_USER_IMAGE + userId.ToString() + URL_USER_PROFILE_IMAGE;// + userRow["profile_photo_path"];
+            newUser.TimeRegisteredLocal = DateTime.ParseExact(userRow["date_added"].ToString(), "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.AssumeLocal);
             return newUser;
         }
 
@@ -154,6 +158,7 @@ namespace REAC_AndroidAPI.Entities
             user.Name = row["name"].ToString();
             user.ProfilePhoto = URL_USER_IMAGE + userId.ToString() + URL_USER_PROFILE_IMAGE;
             user.ProfilePhotoFormat = row["profile_photo_format"].ToString() == "2" ? "image/png" : "image/jpeg";
+            //user.TimeRegisteredLocal = DateTime.ParseExact(row["date_added"].ToString(), "yyyy-MM-dd HH:mm:ss", null);
 
             return 0;
         }
@@ -254,7 +259,7 @@ namespace REAC_AndroidAPI.Entities
                         return true;           
                 }
             }
-            catch (DbException e)
+            catch (DbException)
             {
             }
 
@@ -275,7 +280,7 @@ namespace REAC_AndroidAPI.Entities
                         return true;
                 }
             }
-            catch (DbException e)
+            catch (DbException)
             {
             }
 

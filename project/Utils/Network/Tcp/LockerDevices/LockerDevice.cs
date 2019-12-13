@@ -1,4 +1,5 @@
-﻿using REAC_AndroidAPI.Utils.Network.Tcp.Common;
+﻿using REAC_AndroidAPI.Entities;
+using REAC_AndroidAPI.Utils.Network.Tcp.Common;
 using REAC_AndroidAPI.Utils.Output;
 using System;
 using System.Collections.Concurrent;
@@ -71,6 +72,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             }
 
             string stringPacket = Encoding.UTF8.GetString(body, start, length - start);
+
             string totalHeader = "";
 
             string message;
@@ -78,6 +80,17 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             if (value == null)
                 return;
             totalHeader += value + "|";
+
+            if (value.StartsWith("door_opened_by"))
+            {
+                value = getStringFirstValue(message, out message);
+                if (value == null)
+                    return;
+
+                uint userId = uint.Parse(value);
+                Log.InsertNewLog(userId, "button_open_door");
+                return;
+            }
 
             long packetId = long.Parse(value);
 
