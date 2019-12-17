@@ -74,7 +74,11 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 }, newPasswordBytes);
 
                 if (status > 0)
-                    return Response.AsJson(new MainResponse<String>(Convert.ToBase64String(newPasswordBytes)));
+                    return Response.AsJson(new MainResponse<RegisterResponse>(new RegisterResponse()
+                    {
+                        Password = Convert.ToBase64String(newPasswordBytes),
+                        Id = status
+                    }));
                 else if (status == -2)
                     return Response.AsJson(new MainResponse<byte>(true, "name_already_in_use"));
                 else if (status == -3)

@@ -183,7 +183,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
 **Register Administrator**
 ----
-   Register a new Administrator when there isn't any (on first setup) and returns a String on `content` field with the new generated random password.
+   Register a new Administrator when there isn't any (on first setup) and returns a RegisterResponse object on `content` field with the new generated random password and the id of the member.
 
 * ***URL***
 
@@ -212,7 +212,10 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     {
         "error": false,
         "errorMessage": "",
-        "content": "HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA="
+        "content": {
+            "password": "HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA=",
+            "id": 51
+        }
     }
     ```
  
