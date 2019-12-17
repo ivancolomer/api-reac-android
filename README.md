@@ -488,7 +488,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 
 **User To Admin Confirm**
 ----
-   It's used for upgrading a member to administator/owner level. Returns a string on `content` field with the password_id needed for completing the upgrade. 
+   It's used for upgrading a member to administator/owner level. Returns a RegisterResponse object on `content` field with the password of the new administrator and it's id. 
 
 * ***URL***
 
@@ -516,7 +516,10 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
     {
       "error": false,
       "errorMessage": "",
-      "content": "HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA="
+      "content": {
+            "password": "HnP0BkORqL08ocPtddb8HQJmx3MH0UXMLG7FoiRDQEA=",
+            "id": 51
+        }
     }
     ```
  
