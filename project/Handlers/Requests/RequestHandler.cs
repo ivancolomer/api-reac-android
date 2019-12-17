@@ -183,7 +183,11 @@ namespace REAC_AndroidAPI.Handlers.Requests
                     user.IsOwner = true;
                     user.TimeRegisteredLocal = DateTime.Now;
                     Log.InsertNewLog(user.UserID, "user_to_owner");
-                    return Response.AsJson(new MainResponse<String>(Convert.ToBase64String(newPasswordBytes)));
+                    return Response.AsJson(new MainResponse<RegisterResponse>(new RegisterResponse()
+                    {
+                        Password = Convert.ToBase64String(newPasswordBytes),
+                        Id = user.UserID
+                    }));
                 }
                 else if (status == -3)
                     return Response.AsJson(new MainResponse<byte>(true, "member_is_already_an_admin"));
