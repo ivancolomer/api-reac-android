@@ -108,6 +108,28 @@ The API will be RESTful and their CRUD operations are defined below:
 -->
 
 
+## General Documentation all in one table
+
+| Method | Url | Action |
+| ------ | ------------------- | --- |
+| GET    | /api/ipaddress      | To know the external IPAddress of the server |
+| POST    | /api/register      | To register the first owner |
+| GET    | /api/login          | To login an owner |
+| POST   | /api/admin          | It's used for upgrading a user to owner |
+| GET    | /api/admin/confirm  | It's used as a confirmation of the upgrade of the user to owner |
+| POST   | /api/user           | To Register a new user into the database |
+| POST   | /api/user/biometric | To initiate the process of setting the face and fingerprint data) |
+| GET    | /api/user/:userid/images  | To retrieve a list with all the photo URIs of that user's face |
+| GET    | /api/user/:userid/face/:imageid | To get the face image of a user |
+| GET    | /api/user/:userid/profile/image | To get the profile image of a user |
+| POST    | /api/user/:userid/profile/image | To upload a new profile image of a user |
+| GET    | /api/users          | To retrieve a list with information about every user |
+| GET    | /api/video          | To get the current snapshot/image back from the video streaming camera |
+| GET    | /api/door           | To open the door of the locking device for 3 seconds |
+| GET    | /api/logs            | To retrieve a list of logs from the house by a given range of dates |
+| GET    | /api/notifications  | To retrieve new logs for displaying in notifications |
+| PUT    | /api/notification/:notification_id | To mark the notification as read |
+
 ## Installation
 
 ```bash
