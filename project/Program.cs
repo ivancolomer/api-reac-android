@@ -21,7 +21,6 @@ namespace REAC_AndroidAPI
 
     //dotnet publish --self-contained --runtime linux-arm
 
-
     public class Program
     {
         public static DateTime InitStartUTC { get; set; }
@@ -122,6 +121,8 @@ namespace REAC_AndroidAPI
 
             }
             CloseSocket();
+            BroadcastEmitter.Stop();
+
             Logger.WriteLine("Stopped. Good bye!", Logger.LOG_LEVEL.DEBUG);
             Environment.Exit(0);
         }
@@ -130,7 +131,7 @@ namespace REAC_AndroidAPI
         {
             try
             {
-                VideoClientsManager.ServerListener.Dispose();
+                VideoClientsManager?.ServerListener.Dispose();
             }
             catch (Exception e)
             {
@@ -139,34 +140,40 @@ namespace REAC_AndroidAPI
 
             try
             {
-                LockerDevicesManager.ServerListener.Dispose();
+                LockerDevicesManager?.ServerListener.Dispose();
             }
             catch (Exception e)
             {
                 Logger.WriteLine("Error closing socket: " + e.ToString(), Logger.LOG_LEVEL.ERROR);
             }
 
-            foreach (var Session in VideoClientsManager.CopySessions)
+            if (VideoClientsManager != null)
             {
-                try
+                foreach (var Session in VideoClientsManager.CopySessions)
                 {
-                    Session.Close();
-                }
-                catch (Exception e)
-                {
-                    Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.ERROR);
+                    try
+                    {
+                        Session.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.ERROR);
+                    }
                 }
             }
 
-            foreach (var Session in LockerDevicesManager.CopySessions)
+            if (LockerDevicesManager != null)
             {
-                try
+                foreach (var Session in LockerDevicesManager.CopySessions)
                 {
-                    Session.Close();
-                }
-                catch (Exception e)
-                {
-                    Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.ERROR);
+                    try
+                    {
+                        Session.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.ERROR);
+                    }
                 }
             }
         }
