@@ -151,7 +151,7 @@ bash <(curl -s https://raw.githubusercontent.com/ivancolomer/api-reac-android/ma
 }
 ```
    Where `error` is a `boolean` type which tells if the request succeed or not.<br />
-   Where `errorMessage` is a `string` type which is `null` if there isn't any error, or the error's identifier if there was an error.<br />
+   Where `errorMessage` is a `string` type which is `empty` if there isn't any error, or the error's identifier if there was an error.<br />
    Where `content` is a JSONObject which it's used to display different things depending on the request. When there's an error, it's    always 0.<br />
 
 <a name="ip_address_extra"/>
