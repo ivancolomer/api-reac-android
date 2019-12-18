@@ -9,7 +9,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace REAC2_AndroidAPI.Utils.Network.Udp
+namespace REAC_AndroidAPI.Utils.Network.Udp
 {
     public class BroadcastEmitter
     {

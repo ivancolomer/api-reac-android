@@ -75,9 +75,15 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
 
         private async Task<List<T>> SendMessage<T>(string message)
         {
-            List<T> responses = new List<T>();
+            List<T> responses = new List<T>(); // List of responses from locking devices to return
+
+            /*
+             * Dictionary of tasks that the server will be waiting for until locking devices 
+             * send back an answer or until a specific timeout (2 seconds)
+             */
             Dictionary<LockerDevice, Task<object>> tasks = new Dictionary<LockerDevice, Task<object>>();
 
+            /* Send the message to all clients and add the task which we will be waiting for */
             foreach (var session in Clients)
             {
                 TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
@@ -85,10 +91,13 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
                 tasks.Add((LockerDevice)session.Key, tcs.Task);
             }
 
+            /* Wait for all tasks to be completed or cancelled */
             await Task.WhenAll(tasks.Values);
 
-            foreach (var task in tasks.Values)
+            /* Get the results from tasks and add the completed ones to the list of responses */
+            foreach (KeyValuePair<LockerDevice, Task<object>> keyValuePair in tasks)
             {
+                Task<object> task = keyValuePair.Value;
                 if (task.IsCompletedSuccessfully && !task.IsCanceled &&  task.Result != null && task.Result is T)
                     responses.Add((T)task.Result);
             }

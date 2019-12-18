@@ -123,7 +123,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 UsersManager.RemoveUserByUserName(userName);
                 UsersManager.AddUser(user);
 
-                return Response.AsJson(new MainResponse<String>(user.SessionID));
+                return Response.AsJson(new MainResponse<string>(user.SessionID));
             }); 
 
             //ADMIN

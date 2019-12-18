@@ -6,7 +6,7 @@ using Nancy.Hosting.Self;
 using REAC_AndroidAPI.Utils.Output;
 using REAC_AndroidAPI.Utils.Storage;
 using REAC_AndroidAPI.Utils.Network;
-using REAC2_AndroidAPI.Utils.Network.Udp;
+using REAC_AndroidAPI.Utils.Network.Udp;
 using System.IO;
 using System.Threading;
 using REAC_AndroidAPI.Utils.Network.Tcp.Common;
@@ -35,7 +35,7 @@ namespace REAC_AndroidAPI
 
         private static bool HasExited = false;
 
-        static void Main(string[] args)
+         public static void Main(string[] args)
         {
             InitStartUTC = DateTime.UtcNow;
 

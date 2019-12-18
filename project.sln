@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "REAC-AndroidAPI", "project\REAC-AndroidAPI.csproj", "{1E71C56D-981F-4A9F-AB2F-5A415D8DDA0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "REAC-AndroidAPI", "project\REAC-AndroidAPI.csproj", "{1E71C56D-981F-4A9F-AB2F-5A415D8DDA0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NUnitTestREAC-AndroidAPI", "NUnitTestREAC-AndroidAPI\NUnitTestREAC-AndroidAPI.csproj", "{CF52E72C-4E2C-41E3-9455-6FD7D3AC5C32}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{1E71C56D-981F-4A9F-AB2F-5A415D8DDA0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E71C56D-981F-4A9F-AB2F-5A415D8DDA0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E71C56D-981F-4A9F-AB2F-5A415D8DDA0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF52E72C-4E2C-41E3-9455-6FD7D3AC5C32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF52E72C-4E2C-41E3-9455-6FD7D3AC5C32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF52E72C-4E2C-41E3-9455-6FD7D3AC5C32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF52E72C-4E2C-41E3-9455-6FD7D3AC5C32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
