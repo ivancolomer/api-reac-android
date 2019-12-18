@@ -87,31 +87,36 @@ namespace REAC_AndroidAPI.Handlers.Requests
                     return Response.AsJson(new MainResponse<byte>(true, "database_error"));
             });
 
-            //LOGIN
+            /* 
+             * Login Administrator GET Request.
+             * Returns a String on content field with the new generated random session_id.
+             */
             Get("/login", async (x, ct) =>
             {
                 string userName = this.Request.Query["user_name"];
                 string password = this.Request.Query["password"];
-                //uint userId;
 
-                if (userName == null || password == null)//if (userIdString == null || password == null || !uint.TryParse(userIdString, out userId))
-                {
-                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
-                }
+                if (userName == null || password == null)
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));               
 
                 if (userName.Length < 4)
                     return Response.AsJson(new MainResponse<byte>(true, "short_username_length"));
 
-                //Check if the user and password are in the database
+                /* 
+                 * Check if the user and password are in the database and, if it's not there, 
+                 * return an error message
+                 */
                 LocalUser user = LocalUser.GetAdministratorFromDB(userName, password);
                 if (user == null)
-                {
                     return Response.AsJson(new MainResponse<byte>(true, "wrong_user_password"));
-                }
 
-                //If everything is good so far, update database with a new SessionID(GUID), save the IPAddress(UserHostAddress) and the LastTimeLogged
-                //so we can ask for giving the password again if it was long since we haven't asked.
-
+                /*
+                 * If everything is good so far:
+                 *   - Save the IPAddress(UserHostAddress) and the last time the administrator has logged in.
+                 *   - Remove, if there's any, the previous active session from the same user.
+                 *   - Create a new SessionID(GUID) and save the user into UsersManager.
+                 *   - Return as response the new generated SessionID for this user.
+                 */
                 user.IPAddress = this.Request.UserHostAddress.ToString().Split(':')[0];
                 user.TimeCreated = Time.GetTime();
 
@@ -241,7 +246,7 @@ namespace REAC_AndroidAPI.Handlers.Requests
                     }
 
                     if (responses != null && responses.Count > 0)*/
-                        return Response.AsJson(new MainResponse<long>(userId));
+                return Response.AsJson(new MainResponse<long>(userId));
 
                     /*LocalUser.DeleteUserFromDB(userId);
                     return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));*/
