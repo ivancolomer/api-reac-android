@@ -188,10 +188,11 @@ namespace REAC_AndroidAPI.Handlers.Requests
                     user.IsOwner = true;
                     user.TimeRegisteredLocal = DateTime.Now;
                     Log.InsertNewLog(user.UserID, "user_to_owner");
-                    return Response.AsJson(new MainResponse<RegisterResponse>(new RegisterResponse()
+                    return Response.AsJson(new MainResponse<AdminConfirmResponse>(new AdminConfirmResponse()
                     {
                         Password = Convert.ToBase64String(newPasswordBytes),
-                        Id = user.UserID
+                        Id = user.UserID,
+                        Name = user.Name
                     }));
                 }
                 else if (status == -3)

@@ -15,6 +15,9 @@ namespace REAC_AndroidAPI.Utils.Storage
             byte[] array = null;
             try
             {
+                if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "photo"))
+                    Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "photo");
+                
                 array = File.ReadAllBytes(AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "photo" + Path.DirectorySeparatorChar + userId.ToString() + "." + extension);
             }
             catch (Exception e)
