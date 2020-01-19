@@ -166,5 +166,33 @@ namespace REAC_AndroidAPI.Entities
 
             return count;
         }
+
+        public static int InsertNewLog(string info)
+        {
+            int count = 0;
+            uint userId = LocalUser.GetFirstAdministratorAccount();
+            if (userId > 0)
+            {
+                try
+                {
+                    using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
+                    {
+                        string sql = "INSERT INTO Entry (member_id, info) VALUES(@member_id, @info);";
+                        client.SetParameter("@member_id", userId);
+                        client.SetParameter("@info", info);
+                        count = client.ExecuteNonQuery(sql);
+                    }
+                }
+                catch (DbException e)
+                {
+                    if (e.Message.Contains("Entry_FKIndex1"))
+                        return -1;
+                    else
+                        Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.WARN);
+                }
+            }
+
+            return count;
+        }
     }
 }

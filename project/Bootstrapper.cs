@@ -41,12 +41,14 @@ namespace REAC_AndroidAPI
             base.ApplicationStartup(container, pipelines);
 
             pipelines.BeforeRequest.AddItemToEndOfPipeline((ctx) => {
-                Logger.WriteLineWithHeader(ctx.Request.Url.ToString(), "BeforeRequest - " + ctx.Request.UserHostAddress.ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
-                //ctx.Request.Body.Seek(0, SeekOrigin.Begin);
+
+                //if(!ctx.Request.Url.ToString().Contains("api/video"))
+                    Logger.WriteLineWithHeader(ctx.Request.Url.ToString(), "BeforeRequest - " + ctx.Request.UserHostAddress.ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
+                ////ctx.Request.Body.Seek(0, SeekOrigin.Begin);
                 return null;
             });
 
-            /*pipelines.AfterRequest.AddItemToEndOfPipeline((ctx) => {
+            pipelines.AfterRequest.AddItemToEndOfPipeline((ctx) => {
                 try
                 {
                     var stream = new MemoryStream();
@@ -55,11 +57,12 @@ namespace REAC_AndroidAPI
                     stream.Position = 0;
                     using (var reader = new StreamReader(stream))
                     {
-                        Logger.WriteLineWithHeader(reader.ReadToEnd(), "AfterRequest - " + ctx.Request.UserHostAddress.ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
+                        string value = reader.ReadToEnd();
+                        Logger.WriteLineWithHeader(value.Length > 100 ? value.Substring(0, 100) : value , "AfterRequest - " + ctx.Request.UserHostAddress.ToString().Split(':')[0], Logger.LOG_LEVEL.DEBUG);
                     }
                 }
                 catch (Exception) { }
-            });*/
+            });
         }
     }
 }

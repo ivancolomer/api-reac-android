@@ -13,6 +13,13 @@ using System.Threading.Tasks;
 
 namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
 {
+    /*
+     * Log.InsertNewLog(userId, "open_door"); someone got recognised in the door (face and finger)
+     * Log.InsertNewLog(userId, "user_to_owner");
+     * Log.InsertNewLog(userId, "button_open_door"); someone pressed the button app
+     * Log.InsertNewLog(userId, "doorbell"); someone pressed the doorbell
+     * Log.InsertNewLog(userId, "door_not_successful"); someone missmatch the fingerprint
+     */
     public class LockerDevice : Client
     {
         private const int TIME_OUT_MILLS = 5000;
@@ -57,6 +64,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
                 
                 if (imageRead < imageSize)
                 {
+                    //Logger.WriteLineWithHeader(imageRead + "|" + imageSize, "image_sender", Logger.LOG_LEVEL.DEBUG);
                     return;
                 }
 
@@ -72,7 +80,7 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
             }
 
             string stringPacket = Encoding.UTF8.GetString(body, start, length - start);
-
+            //Logger.WriteLineWithHeader(stringPacket, "image_sender", Logger.LOG_LEVEL.DEBUG);
             string totalHeader = "";
 
             string message;
@@ -81,14 +89,42 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
                 return;
             totalHeader += value + "|";
 
-            if (value.StartsWith("door_opened_by"))
+            if (value.StartsWith("opened_by"))
             {
                 value = getStringFirstValue(message, out message);
                 if (value == null)
                     return;
 
                 uint userId = uint.Parse(value);
-                Log.InsertNewLog(userId, "button_open_door");
+                Log.InsertNewLog(userId, "open_door");
+                return;
+            }
+
+            if (value.StartsWith("failedcompare"))
+            {
+                value = getStringFirstValue(message, out message);
+                if (value == null)
+                    return;
+
+                uint userId = uint.Parse(value);
+                Log.InsertNewLog(userId, "door_not_successful");
+                return;
+            }
+
+            if (value.StartsWith("failedadd"))
+            {
+                value = getStringFirstValue(message, out message);
+                if (value == null)
+                    return;
+
+                uint userId = uint.Parse(value);
+                //DELETE USER FROM DATABASE MAYBE BECAUSE IT FAILED THE BIOMETRIC TEST
+                return;
+            }
+
+            if (value.StartsWith("doorbell"))
+            {
+                Log.InsertNewLog("doorbell");
                 return;
             }
 
@@ -123,6 +159,15 @@ namespace REAC_AndroidAPI.Utils.Network.Tcp.LockerDevices
                         imageRead += length - headerInBytes.Length - start;
                     }
                     imagePacketId = packetId;
+
+                    if(imageRead >= imageSize)
+                    {
+                        SendResponseToMessage(imagePacketId, image.ToArray());
+
+                        imagePacketId = -1;
+                        imageRead = 0;
+                        image = null;
+                    }
 
                     return;
                 }

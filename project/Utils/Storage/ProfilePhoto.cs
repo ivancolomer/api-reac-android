@@ -22,7 +22,7 @@ namespace REAC_AndroidAPI.Utils.Storage
             }
             catch (Exception e)
             {
-                Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.ERROR);
+                //Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.ERROR);
             }
             
             if(extension == "png")

@@ -572,6 +572,39 @@ namespace REAC_AndroidAPI.Handlers.Requests
                 return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
             });
 
+            Get("/reset", async (x, ct) =>
+            {
+                string sessionId = this.Request.Query["session_id"];
+                if (sessionId == null)
+                {
+                    return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
+                }
+
+                LocalUser user;
+                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+
+                List<string> responses = null;
+                try
+                {
+                    responses = await Program.LockerDevicesManager.SendMessageToAllDevicesBlocking("reset");
+                }
+                catch (Exception)
+                {
+
+                }
+
+                if (responses != null && responses.Count > 0)
+                {
+                    //CLEAR DATABASE
+                    LocalUser.WipeDatabase();
+                    UsersManager.ClearUsers();
+                    return Response.AsJson(new MainResponse<List<string>>(responses));
+                }
+
+                return Response.AsJson(new MainResponse<byte>(true, "locker_device_not_found"));
+            });
+
             //LOGS & NOTIFICATIONS
             Get("/logs", async (x, ct) =>
             {

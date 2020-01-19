@@ -56,6 +56,11 @@ namespace REAC_AndroidAPI.Handlers.Requests
             }
         }
 
+        public static void ClearUsers()
+        {
+            ConnectedUsers.Clear();
+        }
+
         public static bool CheckLogIn(string sessionId, string ipAddress, out LocalUser user) //string userId
         {
             /*foreach (var kvp in ConnectedUsers)

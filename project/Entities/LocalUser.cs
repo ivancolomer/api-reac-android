@@ -91,21 +91,19 @@ namespace REAC_AndroidAPI.Entities
             return count;
         }
 
-        /*public static int GetImagesByUserFromDB(uint userId, out List<String> images)
+        public static uint GetFirstAdministratorAccount()
         {
-            images = new List<String>();
-
-            DataTable table = null;
+            DataRow row = null;
             try
             {
                 using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
                 {
-                    client.SetParameter("@user_id", userId);
-                    table = client.ExecuteQueryTable("SELECT p.id " +
-                        "FROM Photo AS p " +
-                        "INNER JOIN Member AS m ON m.id = p.member_id " +
-                        "WHERE m.id = @user_id;");
-
+                    string sql = "SELECT m.id " +
+                        "FROM Administrator AS a " +
+                        "INNER JOIN Member AS m ON m.id = a.member_id " +
+                        "ORDER BY a.id " +
+                        "LIMIT 1;";
+                    row = client.ExecuteQueryRow(sql);
                 }
             }
             catch (Exception e)
@@ -113,18 +111,50 @@ namespace REAC_AndroidAPI.Entities
                 Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.WARN);
             }
 
-            if (table == null)
-                return -1;
+            if (row == null)
+                return 0;
 
-            foreach (DataRow row in table.Rows)
+            uint id;
+            if (!UInt32.TryParse(row[0].ToString(), out id))
+                return 0;
+
+            return id;
+        }
+
+            /*public static int GetImagesByUserFromDB(uint userId, out List<String> images)
             {
-                images.Add(URL_TO_IMAGE + row["id"].ToString());
-            }
+                images = new List<String>();
 
-            return 0;
-        }*/
+                DataTable table = null;
+                try
+                {
+                    using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
+                    {
+                        client.SetParameter("@user_id", userId);
+                        table = client.ExecuteQueryTable("SELECT p.id " +
+                            "FROM Photo AS p " +
+                            "INNER JOIN Member AS m ON m.id = p.member_id " +
+                            "WHERE m.id = @user_id;");
 
-        public static int GetUserFromDB(uint userId, out LocalUser user)
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.WARN);
+                }
+
+                if (table == null)
+                    return -1;
+
+                foreach (DataRow row in table.Rows)
+                {
+                    images.Add(URL_TO_IMAGE + row["id"].ToString());
+                }
+
+                return 0;
+            }*/
+
+            public static int GetUserFromDB(uint userId, out LocalUser user)
         {
             DataRow row = null;
             user = null;
@@ -343,6 +373,25 @@ namespace REAC_AndroidAPI.Entities
             }
 
             return count;
+        }
+
+        public static void WipeDatabase()
+        {
+            try
+            {
+                using (SqlDatabaseClient client = SqlDatabaseManager.GetClient())
+                {
+                    client.ExecuteNonQuery("DELETE FROM EntryRead;");
+                    client.ExecuteNonQuery("DELETE FROM Entry;");
+                    client.ExecuteNonQuery("DELETE FROM Administrator;");
+                    client.ExecuteNonQuery("DELETE FROM Member;");
+                }
+            }
+            catch (DbException e)
+            {
+                    Logger.WriteLine(e.ToString(), Logger.LOG_LEVEL.WARN);
+            }
+        
         }
     }
 }
