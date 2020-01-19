@@ -575,14 +575,23 @@ namespace REAC_AndroidAPI.Handlers.Requests
             Get("/reset", async (x, ct) =>
             {
                 string sessionId = this.Request.Query["session_id"];
-                if (sessionId == null)
+                string serialId = this.Request.Query["serial_id"];
+                if ((sessionId == null || sessionId == string.Empty) && (serialId == null || serialId == string.Empty))
                 {
                     return Response.AsJson(new MainResponse<byte>(true, "missing_request_parameters"));
                 }
 
-                LocalUser user;
-                if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
-                    return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+                if (sessionId != null && sessionId != string.Empty)
+                {
+                    LocalUser user;
+                    if (!UsersManager.CheckLogIn(sessionId, this.Request.UserHostAddress, out user))
+                        return Response.AsJson(new MainResponse<byte>(true, "expired_session_id"));
+                }
+                else
+                {
+                    if (serialId != DotNetEnv.Env.GetString("SERIAL_ID"))
+                        return Response.AsJson(new MainResponse<byte>(true, "wrong_serial_id"));
+                }
 
                 List<string> responses = null;
                 try
