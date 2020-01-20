@@ -385,6 +385,7 @@ namespace REAC_AndroidAPI.Entities
                     client.ExecuteNonQuery("DELETE FROM Entry;");
                     client.ExecuteNonQuery("DELETE FROM Administrator;");
                     client.ExecuteNonQuery("DELETE FROM Member;");
+                    client.ExecuteNonQuery("ALTER TABLE Member AUTO_INCREMENT=51;");
                 }
             }
             catch (DbException e)
