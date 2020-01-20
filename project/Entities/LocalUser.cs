@@ -241,12 +241,21 @@ namespace REAC_AndroidAPI.Entities
             bool clientIsNull = client == null;
             try
             {
-                if (clientIsNull)
-                    client = SqlDatabaseManager.GetClient();
-
                 string sql = "INSERT INTO Member (name, role) VALUES(@name, @role);";
+                if (clientIsNull)
+                {
+                    client = SqlDatabaseManager.GetClient();
+                } 
+                else
+                {
+                    client.SetParameter("@id", 51);
+                    sql = "INSERT INTO Member (id, name, role) VALUES(@id, @name, @role);";
+                }
+                
+                
                 client.SetParameter("@name", user.Name);
                 client.SetParameter("@role", user.Role);
+                
 
                 int count = client.ExecuteNonQuery(sql);
 
@@ -385,7 +394,7 @@ namespace REAC_AndroidAPI.Entities
                     client.ExecuteNonQuery("DELETE FROM Entry;");
                     client.ExecuteNonQuery("DELETE FROM Administrator;");
                     client.ExecuteNonQuery("DELETE FROM Member;");
-                    client.ExecuteNonQuery("ALTER TABLE Member AUTO_INCREMENT=51;");
+                    //client.ExecuteNonQuery("ALTER TABLE Member AUTO_INCREMENT=51;");
                 }
             }
             catch (DbException e)
